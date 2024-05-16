@@ -18,6 +18,7 @@ MouseSpeed := 30	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
 MouseStartSpeed := 0.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1	; The amount to multiply movement when scrolling
+DragSpeed  := 1 ; 按键移动画布的速度
 
 ; ============= END USER-CONFIGURABLE SECTION =============
 
@@ -59,6 +60,13 @@ return
         MouseAcceleration := 1
 return
 
+~Esc & F5::
+    if (DragSpeed == 1)
+        DragSpeed := 2
+    else
+        DragSpeed := 1
+return
+
 
 
 ;按下Esc+F5，出现当前focus的窗口的名称（text）的tooltip，再按一次消失
@@ -72,7 +80,7 @@ return
 ; return
 
 
-~Esc & F5::
+~Esc & F6:: 
 WinGetTitle, currentTitle, A ; 获取当前窗口标题
 WinGetClass, currentClass, A ; 获取当前窗口类名
 ControlGetFocus, focusedControl, A ; 获取当前焦点控件
@@ -488,7 +496,7 @@ IsWhatApp()
 w::
     if GetKeyState("CAPSLOCK", "P"){
         ;MouseGetPos, x, y
-        x :=InWhatApp()*2
+        x :=InWhatApp()*DragSpeed
         y :=InWhatApp()
         Loop
         {
@@ -510,7 +518,7 @@ Return
 a::
     if GetKeyState("CAPSLOCK", "P"){
         ;MouseGetPos, x, y
-        x :=InWhatApp()*2
+        x :=InWhatApp()*DragSpeed
         y :=InWhatApp()
         Loop
         {
@@ -532,7 +540,7 @@ Return
 s::
     if GetKeyState("CAPSLOCK", "P"){
         ;MouseGetPos, x, y
-        x :=InWhatApp()*2
+        x :=InWhatApp()*DragSpeed
         y :=InWhatApp()
         Loop
         {
@@ -554,7 +562,7 @@ Return
 d::
     if GetKeyState("CAPSLOCK", "P"){
         ;MouseGetPos, x, y
-        x :=InWhatApp()*2
+        x :=InWhatApp()*DragSpeed
         y :=InWhatApp()
 
         Loop
