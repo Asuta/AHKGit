@@ -15,7 +15,7 @@ ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name
 AltKey := "Alt"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
 ScaleFactor := 3	; The amount to multiply movement when scrolling
 MouseSpeed := 30	; The amount to multiply movement when scrolling
-MouseSleep := 0.01	; The amount to multiply movement when scrolling
+MouseSleep := 10	; The amount to multiply movement when scrolling
 MouseStartSpeed := 0.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1	; The amount to multiply movement when scrolling
 
@@ -435,37 +435,58 @@ Return
 
 ; zoomSpeed := 50
 
+; 定义一个全局变量，用于确保Ctrl键被正确释放
+isCtrlDown := false
+
 CapsLock & q::
-    if GetKeyState("CAPSLOCK", "P"){
+    if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
-        Loop
-        {
-            if not GetKeyState("q", "P") ;
+        Loop {
+            ; 立即检测q键是否被释放
+            if (GetKeyState("q", "P") = 0) {
                 break
-            Send {Ctrl Down}{WheelDown}
+            }
+            ; 执行放大/缩小操作
+            if (!isCtrlDown) {
+                Send {Ctrl Down}
+                isCtrlDown := true
+            }
+            Send {WheelDown}
             Sleep zoomSpeed
-            Send {Ctrl Up}
         }
-    }
-    else {
-        Send {q} ;
+        ; 确保Ctrl键被释放
+        if (isCtrlDown) {
+            Send {Ctrl Up}
+            isCtrlDown := false
+        }
+    } else {
+        Send {q}
     }
 Return
 
 CapsLock & e::
-    if GetKeyState("CAPSLOCK", "P"){
+    if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
-        Loop
-        {
-            if not GetKeyState("e", "P") ;
+        Loop {
+            ; 立即检测e键是否被释放
+            if (GetKeyState("e", "P") = 0) {
                 break
-            Send {Ctrl Down}{WheelUp}
+            }
+            ; 执行放大/缩小操作
+            if (!isCtrlDown) {
+                Send {Ctrl Down}
+                isCtrlDown := true
+            }
+            Send {WheelUp}
             Sleep zoomSpeed
-            Send {Ctrl Up}
         }
-    }
-    else {
-        Send {e} ;
+        ; 确保Ctrl键被释放
+        if (isCtrlDown) {
+            Send {Ctrl Up}
+            isCtrlDown := false
+        }
+    } else {
+        Send {e}
     }
 Return
 
