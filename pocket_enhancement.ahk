@@ -196,19 +196,6 @@ return
         {
             Send +{Left}
         }
-
-    }
-    Else if (GetKeyState("CapsLock", "P"))
-    {
-        if (GetKeyState("A", "P"))
-            Send {Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}
-        else
-        {
-            Send {Ctrl down}
-            Send {Left}
-            Send {Ctrl up}
-        }
-
     }
     Else if (GetKeyState("F", "P"))
     {
@@ -229,18 +216,6 @@ return
         else
         {
             Send +{Right}
-        }
-
-    }
-    Else if (GetKeyState("CapsLock", "P"))
-    {
-        if (GetKeyState("A", "P"))
-            Send {Ctrl down}{Shift down}{Right}{Ctrl up}{Shift up}
-        else
-        {
-            Send {Ctrl down}
-            Send {Right}
-            Send {Ctrl up}
         }
 
     }
