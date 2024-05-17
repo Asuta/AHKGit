@@ -16,13 +16,13 @@ return
 
 
 ;if input alt +q, then it will be sent as alt + q and the canrelase will be set to 0(until 100ms)
-!q:: 
-	CanRelase := 0
-	Send {Alt Down}{q}
-	Sleep 100
-	Send {Alt Up}
- 	CanRelase := 1   
-return
+; !q:: 
+; 	CanRelase := 0
+; 	Send {Alt Down}{q}
+; 	Sleep 100
+; 	Send {Alt Up}
+;  	CanRelase := 1   
+; return
 ;(这里加上这么个东西是为了让alt + q（查词软件）不触发space而导致网页向下滑一下。。。。)
 
 
@@ -37,7 +37,8 @@ ShiftKeyReleased:
 	BlockInput, MouseMoveOff
 	ScrollMode := 1
 	md.SetState(!ScrollMode)
-	if (!Scrolled&&CanRelase) {
+	; if (!Scrolled&&CanRelase) {
+	if (!Scrolled) {
 		Send {%ShiftKey%}
 	}
 	Scrolled := 0
