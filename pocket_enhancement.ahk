@@ -27,14 +27,16 @@ DragSpeed  := 1 ; 按键移动画布的速度
 
 ;#MenuMaskKey vkA5
 
+;!j::Return  ; 禁用 Alt + J
+
 ~LCtrl & `;::
     Send ^{`;}
     Send ^{c}
     Scrolled := 1
 return
 
-~!j::Left
-~!l::Right
+!j::Left
+!l::Right
 ~!i::Up
 ~!k::Down
 
