@@ -189,9 +189,16 @@ return
 
 ~Space & i::
     if (GetKeyState("LShift", "P"))
-        Send +{Up}
+        {
+            Send +{Up}
+            ControlSend, OneNote::DocumentCanvas1, +{Up}, ahk_exe ONENOTE.EXE
+        }
     else
-        Send {Up}
+        {
+            Send {Up}
+            ControlSend, OneNote::DocumentCanvas1, {Up}, ahk_exe ONENOTE.EXE
+        }
+
     Scrolled := 1
 return
 
@@ -240,11 +247,17 @@ return
 
 ~Space & k::
     if (GetKeyState("LShift", "P"))
-        Send +{Down}
+        {
+            Send +{Down}
+            ControlSend, OneNote::DocumentCanvas1, +{Down}, ahk_exe ONENOTE.EXE
+        }
     else if (GetKeyState("lbutton", "P"))
         Send #k
     else
-        Send {Down}
+        {
+            Send {Down}
+            ControlSend, OneNote::DocumentCanvas1, {Down}, ahk_exe ONENOTE.EXE
+        }
     Scrolled := 1
 return
 
