@@ -5,10 +5,9 @@
 ScrollMode := 1
 Scrolled := 1
 CanRelase := 0
-md := new MouseDelta("MouseEvent") 
+md := new MouseDelta("MouseEvent")
 
-
-
+global ShiftKey  ; 确保 ShiftKey 从主脚本中获取
 
 hotkey, % ShiftKey, ShiftKeyPressed
 hotkey, % ShiftKey " up", ShiftKeyReleased
