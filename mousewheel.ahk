@@ -30,7 +30,7 @@ return
 ShiftKeyPressed:
 	BlockInput, MouseMove
 	ScrollMode := 0
-	md.SetState(!ScrollMode)""
+	md.SetState(!ScrollMode)
 	return
 
 ShiftKeyReleased:

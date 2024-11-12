@@ -208,20 +208,24 @@ return
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
+        {
             Send {Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}
+            Send {F up}
+        }
         else
         {
             Send +{Left}
         }
     }
-    Else if (GetKeyState("F", "P"))
+    else if (GetKeyState("F", "P"))
     {
-        Send {Ctrl down}
-        Send {Left}
-        Send {Ctrl up}
+        Send {Ctrl down}{Left}{Ctrl up}
+        Send {F up}
     }
     else
+    {
         Send {Left}
+    }
     Scrolled := 1
 return
 
