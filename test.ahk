@@ -1,5 +1,5 @@
-; 获取当前用户的桌面路径
-ProgramPath := A_Desktop "\new.exe"
+; 获取脚本所在目录下的程序路径
+ProgramPath := A_ScriptDir "\pocket_enhancement.exe"
 
 ; 启动程序
 StartProgram() {
@@ -9,13 +9,13 @@ StartProgram() {
 
 ; 结束程序
 EndProgram() {
-    ProcessClose("new.exe")
+    ProcessClose("nepocket_enhancementw.exe")
 }
 
 ; 重启程序
 RestartProgram() {
     EndProgram()
-    Sleep(1000) ; 等待1秒以确保程序完全关闭
+    Sleep(100) ; 等待1秒以确保程序完全关闭
     StartProgram()
 }
 
