@@ -26,3 +26,6 @@ RestartProgram() {
 
 ; 提示信息
 ; MsgBox("脚本已启动。使用 Ctrl+Alt+S 启动，Ctrl+Alt+E 结束，Ctrl+Alt+R 重启程序。")
+
+; 启动时自动执行一次重启
+RestartProgram()
