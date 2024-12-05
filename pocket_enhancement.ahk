@@ -44,8 +44,8 @@ return
 ; 不知道为什么这个只会在alt+tab之后才能用
 
 
-~Esc & F1::Suspend
-~Esc & F2::Reload
+; ~Esc & F1::Suspend
+; ~Esc & F2::Reload
 ; 按下Esc+F3，触发leftctrl、leftshift、leftalt、leftwin四个键
 ~Esc & F3::
     Send {LCtrl}
