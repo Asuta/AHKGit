@@ -60,7 +60,11 @@ DragSpeed  := 1 ; 按键移动画布的速度
     Send("{Blind}{Down}")
 }
 
-~!`;::Delete
+!`;::
+{
+    Send("{Blind}{Delete}")
+}
+
 ; 不知道为什么这个只会在alt+tab之后才能用
 
 
