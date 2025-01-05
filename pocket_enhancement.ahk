@@ -1,14 +1,18 @@
-; Pocket Enhancement v1.1.0
-; By ClassicOldSong
-; https://ccoooss.com
-; https://gist.github.com/ClassicOldSong/6eec077dc54e62ab68c2ab29b03713cc
-#NoEnv
 #SingleInstance
-#MaxHotkeysPerInterval 10000
-SendMode Input
-SetWorkingDir %A_ScriptDir%
-CoordMode, Mouse, Window ; 去掉了也没啥影响。。。。(头像测试)
-SetBatchLines,% -1, S:=2 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
+SendMode("Input")
+InstallKeybdHook()
+#UseHook
+
+; 全局变量声明
+A_MaxHotkeysPerInterval := 10000
+SetWorkingDir(A_ScriptDir)
+CoordMode("Mouse", "Window")
+
+; 定义全局变量
+global S := 0
+global X := 0
+global Y := 0
+isCtrlDown := false
 
 ; ============= START USER-CONFIGURABLE SECTION =============
 ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
@@ -22,7 +26,7 @@ DragSpeed  := 1 ; 按键移动画布的速度
 
 ; ============= END USER-CONFIGURABLE SECTION =============
 
-#Include, mousewheel.ahk
+#Include "mousewheel.ahk"
 ;#InstallKeybdHook
 
 ;#MenuMaskKey vkA5
@@ -30,15 +34,31 @@ DragSpeed  := 1 ; 按键移动画布的速度
 ;!j::Return  ; 禁用 Alt + J
 
 ~LCtrl & `;::
-    Send ^{`;}
-    Send ^{c}
+{
+    Send("^{`;}")
+    Send("^{c}")
     Scrolled := 1
-return
+}
 
-!j::Left
-!l::Right
-~!i::Up
-~!k::Down
+!j::
+{
+    Send("{Left}")
+}
+
+!l::
+{
+    Send("{Right}")
+}
+
+~!i::
+{
+    Send("{Up}")
+}
+
+~!k::
+{
+    Send("{Down}")
+}
 
 ~!`;::Delete
 ; 不知道为什么这个只会在alt+tab之后才能用
@@ -48,26 +68,30 @@ return
 ; ~Esc & F2::Reload
 ; 按下Esc+F3，触发leftctrl、leftshift、leftalt、leftwin四个键
 ~Esc & F3::
-    Send {LCtrl}
-    Send {LShift}
-    Send {LAlt}
-    Send {LWin}
-    Send {Space}
-return
+{
+    Send("{LCtrl}")
+    Send("{LShift}")
+    Send("{LAlt}")
+    Send("{LWin}")
+    Send("{Space}")
+}
+
 ; 按下Esc+F4，让MouseAcceleration = 1000，再按一次恢复
 ~Esc & F4::
+{
     if (MouseAcceleration == 1)
         MouseAcceleration := 1000
     else
         MouseAcceleration := 1
-return
+}
 
 ~Esc & F5::
+{
     if (DragSpeed == 1)
         DragSpeed := 2
     else
         DragSpeed := 1
-return
+}
 
 
 
@@ -82,23 +106,24 @@ return
 ; return
 
 
-~Esc & F6:: 
-WinGetTitle, currentTitle, A ; 获取当前窗口标题
-WinGetClass, currentClass, A ; 获取当前窗口类名
-ControlGetFocus, focusedControl, A ; 获取当前焦点控件
-ControlGet, hwnd, Hwnd,, %focusedControl%, A ; 获取控件的HWND
-ControlGetText, text, % "ahk_id " hwnd ; 使用HWND获取文本
+~Esc & F6::
+{
+    currentTitle := WinGetTitle("A")
+    currentClass := WinGetClass("A")
+    focusedControl := ControlGetClassNN(ControlGetFocus("A"))
+    hwnd := ControlGetHwnd(focusedControl, "A")
+    text := ControlGetText("ahk_id " hwnd)
 
-; 显示收集到的信息
-ToolTip, 
+    ToolTip("
 (
-Title: %currentTitle%
-Class: %currentClass%
-Control: %focusedControl%
-Text: %text%
-)
-Sleep, 2000
-ToolTip
+Title: " currentTitle "
+Class: " currentClass "
+Control: " focusedControl "
+Text: " text "
+)")
+    Sleep(2000)
+    ToolTip()
+}
 
 
 
@@ -106,543 +131,571 @@ ToolTip
     
 
 
-RCtrl::LWin
+RCtrl::
+{
+    Send("{LWin}")
+}
 
 ~Space & LCtrl::
-    Send {RWin}
+{
+    Send("{RWin}")
     Scrolled := 1
-return
+}
 
 ~Space & LButton::
-    Send !{Left}
+{
+    Send("!{Left}")
     Scrolled := 1
-return
+}
 
 ~Space & RButton::
-    Send !{Right}
+{
+    Send("!{Right}")
     Scrolled := 1
-return
-
-SendMode Input
-#InstallKeybdHook
-#UseHook
+}
 
 ~LCtrl & h::
-    Send , ^z
-    Sleep,30
-    Send {Esc}
-return
+{
+    global
+    Send("^z")
+    Sleep(30)
+    Send("{Esc}")
+}
 
 ~Space & h::
-    Send , ^z
-    Sleep,30
-    Send {Esc}
+{
+    global
+    Send("^z")
+    Sleep(30)
+    Send("{Esc}")
     Scrolled := 1
-return
+}
 
 ~Space & q::
-    Send {Esc}
+{
+    global
+    Send("{Esc}")
     Scrolled := 1
-return
+}
 
 ~Space & n::
-    ;Send {Backspace}
+{
+    global
     Scrolled := 1
-return
+}
 
 ~Space & '::
-    ;Send {Backspace}
+{
+    global
     if (GetKeyState("LShift", "P"))
-        Send +{Backspace}
+        Send("+{Backspace}")
     Scrolled := 1
-return
+}
 
 ~Space & `;::
-    Send {Backspace}
+{
+    global
+    Send("{Backspace}")
     if (GetKeyState("LShift", "P"))
-        Send +{Backspace}
+        Send("+{Backspace}")
     Scrolled := 1
-return
+}
 
-~RAlt & l::Run,C:\Windows\System32\Rundll32.Exe user32.dll LockWorkStation
+~RAlt & l::Run("C:\Windows\System32\Rundll32.Exe user32.dll LockWorkStation")
 
-~lbutton & Space::LWin
+~lbutton & Space::
+{
+    Send("{LWin}")
+}
 
 
 
 
 ~LButton & RButton::
 ~RButton & LButton::
-Send, {Alt Down}{q}{Alt Up}
-return
+{
+    Send("{Alt Down}{q}{Alt Up}")
+}
 
 ~LButton::
 ~RButton::
-return
-
-
-
-;=============================移动光标（和一点其他的）============================
+{
+    global
+}
 
 ~Space & f::
-    ; Send {Enter}
+{
+    global
     Scrolled := 1
-return
+}
 
 ~Space & i::
+{
+    global
     if (GetKeyState("LShift", "P"))
-        {
-            Send +{Up}
-            ControlSend, OneNote::DocumentCanvas1, +{Up}, ahk_exe ONENOTE.EXE
+    {
+        Send("+{Up}")
+        try {
+            if WinExist("ahk_exe ONENOTE.EXE")
+                ControlSend("+{Up}", , "ahk_exe ONENOTE.EXE")
         }
+    }
     else
-        {
-            Send {Up}
-            ControlSend, OneNote::DocumentCanvas1, {Up}, ahk_exe ONENOTE.EXE
+    {
+        Send("{Up}")
+        try {
+            if WinExist("ahk_exe ONENOTE.EXE")
+                ControlSend("{Up}", , "ahk_exe ONENOTE.EXE")
         }
-
+    }
     Scrolled := 1
-return
+}
 
 ~Space & j::
+{
+    global
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
         {
-            Send {Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}
-            Send {F up}
+            Send("{Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}")
+            Send("{F up}")
         }
         else
         {
-            Send +{Left}
+            Send("+{Left}")
         }
     }
     else if (GetKeyState("F", "P"))
     {
-        Send {Ctrl down}{Left}{Ctrl up}
-        Send {F up}
+        Send("{Ctrl down}{Left}{Ctrl up}")
+        Send("{F up}")
     }
     else
     {
-        Send {Left}
+        Send("{Left}")
     }
     Scrolled := 1
-return
+}
 
 ~Space & l::
+{
+    global
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
-            Send {Ctrl down}{Shift down}{Right}{Ctrl up}{Shift up}
+            Send("{Ctrl down}{Shift down}{Right}{Ctrl up}{Shift up}")
         else
         {
-            Send +{Right}
+            Send("+{Right}")
         }
 
     }
     Else if (GetKeyState("F", "P"))
     {
-        Send {Ctrl down}
-        Send {Right}
-        Send {Ctrl up}
+        Send("{Ctrl down}")
+        Send("{Right}")
+        Send("{Ctrl up}")
     }
     else
-        Send {Right}
+        Send("{Right}")
     Scrolled := 1
-return
+}
 
 ~Space & k::
+{
+    global
     if (GetKeyState("LShift", "P"))
-        {
-            Send +{Down}
-            ControlSend, OneNote::DocumentCanvas1, +{Down}, ahk_exe ONENOTE.EXE
+    {
+        Send("+{Down}")
+        try {
+            if WinExist("ahk_exe ONENOTE.EXE")
+                ControlSend("+{Down}", , "ahk_exe ONENOTE.EXE")
         }
+    }
     else if (GetKeyState("lbutton", "P"))
-        Send #k
+        Send("#k")
     else
-        {
-            Send {Down}
-            ControlSend, OneNote::DocumentCanvas1, {Down}, ahk_exe ONENOTE.EXE
+    {
+        Send("{Down}")
+        try {
+            if WinExist("ahk_exe ONENOTE.EXE")
+                ControlSend("{Down}", , "ahk_exe ONENOTE.EXE")
         }
+    }
     Scrolled := 1
-return
+}
 
 ~Space & u::
+{
+    global
     if (GetKeyState("LShift", "P"))
-        Send +{Home}
+        Send("+{Home}")
     else
-        Send {Home}
+        Send("{Home}")
     Scrolled := 1
-return
+}
 
 ~Space & p::
+{
+    global
     if (GetKeyState("LShift", "P"))
-        Send +{End}
+        Send("+{End}")
     else if (GetKeyState("lbutton", "P"))
-        Send #p
+        Send("#p")
     else
-        Send {End}
+        Send("{End}")
     Scrolled := 1
-return
+}
 
 ;=============================好像没啥用============================
-~Space & a::Send {Win Up}
-~Space & PrintScreen::#+s
+~Space & a::
+{
+    Send("{Win Up}")
+}
+
+~Space & PrintScreen::
+{
+    Send("#s")
+}
 
 ;=============================caplock屏蔽============================
-;实际上加上下面的这个东西的作用是，让单度点击caplock彻底失效  虽然原理是什么也没想明白。。。。。
-;好像之前之所以有作用可能是因为方轮子写的什么东西导致的   多半在另外两个脚本里
 CapsLock::Return
 
-~CapsLock & x::Right
-Scrolled := 1
-return
+~CapsLock & x::
+{
+    Send("{Right}")
+    Scrolled := 1
+}
 
 ;=============================移动鼠标============================
+~CapsLock & u::
+{
+    Click
+}
 
-~CapsLock & u::lbutton
-return
+~CapsLock & f::
+{
+    Click
+}
 
-~CapsLock & f::lbutton
-return
-
-~CapsLock & o::rbutton
-return
+~CapsLock & o::
+{
+    Click("Right")
+}
 
 i::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
-        Loop
-        {
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        S := MouseStartSpeed  ; 重置S为初始速度
+        X := 0
+        Y := 0
+        Loop {
             if not GetKeyState("i", "P")
-            {
                 break
-            }
             S+=MouseAcceleration
             Y:=-S
             if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
                 X:=-S
-            }
-
             if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
                 X:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            MouseMove(X, Y, 0, "R")
+            Sleep(MouseSleep)
         }
     }
-    else {
-        Send {i} ;
-    }
-Return
+    else
+        Send("{i}")
+}
 
 j::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
-        Loop
-        {
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        S := MouseStartSpeed  ; 重置S为初始速度
+        X := 0
+        Y := 0
+        Loop {
             if not GetKeyState("j", "P")
-            {
                 break
-            }
             S+=MouseAcceleration
             X:=-S
             if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
                 Y:=-S
-            }
-
             if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
                 Y:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            MouseMove(X, Y, 0, "R")
+            Sleep(MouseSleep)
         }
     }
-    else {
-        Send {j} ;
-    }
-Return
+    else
+        Send("{j}")
+}
 
 k::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
-        Loop
-        {
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        S := MouseStartSpeed  ; 重置S为初始速度
+        X := 0
+        Y := 0
+        Loop {
             if not GetKeyState("k", "P")
-            {
                 break
-            }
             S+=MouseAcceleration
             Y:=S
             if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
                 X:=-S
-            }
-
             if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
                 X:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            MouseMove(X, Y, 0, "R")
+            Sleep(MouseSleep)
         }
     }
-    else {
-        Send {k} ;
-    }
-Return
+    else
+        Send("{k}")
+}
 
 l::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
-        Loop
-        {
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        S := MouseStartSpeed  ; 重置S为初始速度
+        X := 0
+        Y := 0
+        Loop {
             if not GetKeyState("l", "P")
-            {
                 break
-            }
             S+=MouseAcceleration
             X:=S
             if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
                 Y:=-S
-            }
-
             if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
                 Y:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            MouseMove(X, Y, 0, "R")
+            Sleep(MouseSleep)
         }
     }
-    else {
-        Send {l} ;
-    }
-Return
+    else
+        Send("{l}")
+}
 
 ;=============================移动画布(页面)============================
 
-; zoomSpeed := 50
-
-; 定义一个全局变量，用于确保Ctrl键被正确释放
-isCtrlDown := false
-
 CapsLock & q::
+{
+    global
     if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
         Loop {
             ; 立即检测q键是否被释放
-            if (GetKeyState("q", "P") = 0) {
+            if (GetKeyState("q", "P") = 0)
                 break
-            }
             ; 执行放大/缩小操作
             if (!isCtrlDown) {
-                Send {Ctrl Down}
+                Send("{Ctrl Down}")
                 isCtrlDown := true
             }
-            Send {WheelDown}
-            Sleep zoomSpeed
+            Send("{WheelDown}")
+            Sleep(zoomSpeed)
         }
         ; 确保Ctrl键被释放
         if (isCtrlDown) {
-            Send {Ctrl Up}
+            Send("{Ctrl Up}")
             isCtrlDown := false
         }
-    } else {
-        Send {q}
     }
-Return
+    else
+        Send("{q}")
+}
 
 CapsLock & e::
+{
+    global
     if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
         Loop {
             ; 立即检测e键是否被释放
-            if (GetKeyState("e", "P") = 0) {
+            if (GetKeyState("e", "P") = 0)
                 break
-            }
             ; 执行放大/缩小操作
             if (!isCtrlDown) {
-                Send {Ctrl Down}
+                Send("{Ctrl Down}")
                 isCtrlDown := true
             }
-            Send {WheelUp}
-            Sleep zoomSpeed
+            Send("{WheelUp}")
+            Sleep(zoomSpeed)
         }
         ; 确保Ctrl键被释放
         if (isCtrlDown) {
-            Send {Ctrl Up}
+            Send("{Ctrl Up}")
             isCtrlDown := false
         }
-    } else {
-        Send {e}
     }
-Return
+    else
+        Send("{e}")
+}
 
 IsWhatApp()
 {
     hwnd := WinActive("A")
-    WinGetTitle,title
+    title := WinGetTitle()
     ;获取title的后半部分
-    title := SubStr(title,InStr(title,"-")+1)
+    title := SubStr(title, (InStr(title, "-")+1)<1 ? (InStr(title, "-")+1)-1 : (InStr(title, "-")+1))
     ;输出title
     ; MsgBox %title%
-    ; 如果title中包含“OneNote”，则执行后面的语句
-    if (InStr(title,"OneNote") > 0)
+    ; 如果title中包含"OneNote"，则执行后面的语句
+    if (InStr(title, "OneNote") > 0)
     {
         Return 50
     }
     else
     {
-        ;输出“no”
+        ;输出"no"
         Return 150
     }
 }
 
 w::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("w", "P") ;
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        x := InWhatApp()*DragSpeed
+        y := InWhatApp()
+        Loop {
+            if not GetKeyState("w", "P")
                 break
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
+            DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * 0.1, "int", 0)
             if GetKeyState("a", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+                DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * -0.1, "int", 0)
             if GetKeyState("d", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-            sleep 100 ;
+                DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * 0.1, "int", 0)
+            Sleep(100)
         }
     }
-    else {
-        Send {w} ;
-    }
-Return
+    else
+        Send("{w}")
+}
 
 a::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("a", "P") ;
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        x := InWhatApp()*DragSpeed
+        y := InWhatApp()
+        Loop {
+            if not GetKeyState("a", "P")
                 break
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+            DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * -0.1, "int", 0)
             if GetKeyState("w", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
+                DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * 0.1, "int", 0)
             if GetKeyState("s", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-            sleep 100 ;
+                DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * -0.1, "int", 0)
+            Sleep(100)
         }
     }
-    else {
-        Send {a} ;
-    }
-Return
+    else
+        Send("{a}")
+}
 
 s::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("s", "P") ;
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        x := InWhatApp()*DragSpeed
+        y := InWhatApp()
+        Loop {
+            if not GetKeyState("s", "P")
                 break
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
+            DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * -0.1, "int", 0)
             if GetKeyState("a", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+                DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * -0.1, "int", 0)
             if GetKeyState("d", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-            sleep 100 ;
+                DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * 0.1, "int", 0)
+            Sleep(100)
         }
     }
-    else {
-        Send {s} ;
-    }
-Return
+    else
+        Send("{s}")
+}
 
 d::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-
-        Loop
-        {
-            if not GetKeyState("d", "P") ;
+{
+    global
+    if GetKeyState("CAPSLOCK", "P") {
+        x := InWhatApp()*DragSpeed
+        y := InWhatApp()
+        Loop {
+            if not GetKeyState("d", "P")
                 break
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
+            DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * 0.1, "int", 0)
             if GetKeyState("s", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
+                DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * -0.1, "int", 0)
             if GetKeyState("w", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-            sleep 100 ;
+                DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * 0.1, "int", 0)
+            Sleep(100)
         }
     }
-    else {
-        Send {d} ;
-    }
-Return
+    else
+        Send("{d}")
+}
 
 InWhatApp()
 {
     hwnd := WinActive("A")
-    WinGetTitle,title
+    title := WinGetTitle()
     ;获取title的后半部分
-    title := SubStr(title,InStr(title,"-")+1)
+    title := SubStr(title, (InStr(title, "-")+1)<1 ? (InStr(title, "-")+1)-1 : (InStr(title, "-")+1))
     ;输出title
     ; MsgBox %title%
-    ; 如果title中包含“OneNote”，则执行后面的语句
-    if (InStr(title,"OneNote") > 0)
+    ; 如果title中包含"OneNote"，则执行后面的语句
+    if (InStr(title, "OneNote") > 0)
     {
         Return 1000
     }
     else
     {
-        ;输出“no”
+        ;输出"no"
         Return 1200
     }
 }
 
 ;=========================================================
 ~lbutton & enter:: ;鼠标放在任务栏，滚动滚轮实现音量的加减
-exitapp
+{
+    ExitApp()
+}
+
 ~WheelUp::
+{
+    global
     if (existclass("ahk_class Shell_TrayWnd")=1)
-        Send,{Volume_Up}
-Return
+        Send("{Volume_Up}")
+}
+
 ~WheelDown::
+{
+    global
     if (existclass("ahk_class Shell_TrayWnd")=1)
-        Send,{Volume_Down}
-Return
+        Send("{Volume_Down}")
+}
+
 ~MButton::
+{
+    global
     if (existclass("ahk_class Shell_TrayWnd")=1)
-        Send,{Volume_Mute}
-Return
+        Send("{Volume_Mute}")
+}
 
 Existclass(class)
 {
-    MouseGetPos,,,win
-    WinGet,winid,id,%class%
-    if win = %winid%
-        Return,1
+    MouseGetPos(, , &win)
+    winid := WinGetid(class)
+    if (win = winid)
+        Return 1
     Else
-        Return,0
+        Return 0
 }
+
+
+

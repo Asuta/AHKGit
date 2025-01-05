@@ -1,17 +1,17 @@
-#NoEnv
+; V1toV2: Removed #NoEnv
 #SingleInstance force
-#include MouseDelta.ahk
+#Include "MouseDelta.ahk"
 
 ScrollMode := 1
 Scrolled := 1
 CanRelase := 0
-md := new MouseDelta("MouseEvent") 
+md := MouseDelta("MouseEvent") 
 
 
 
 
-hotkey, % ShiftKey, ShiftKeyPressed
-hotkey, % ShiftKey " up", ShiftKeyReleased
+Hotkey(ShiftKey, ShiftKeyPressed)
+Hotkey(ShiftKey " up", ShiftKeyReleased)
 return
 
 
@@ -27,58 +27,71 @@ return
 
 
 
-ShiftKeyPressed:
-	BlockInput, MouseMove
+ShiftKeyPressed(ThisHotkey)
+{ ; V1toV2: Added bracket
+global ; V1toV2: Made function global
+	BlockInput("MouseMove")
 	ScrollMode := 0
 	md.SetState(!ScrollMode)
 	return
+} ; V1toV2: Added Bracket before label
 
-ShiftKeyReleased:
-	BlockInput, MouseMoveOff
+ShiftKeyReleased(ThisHotkey)
+{ ; V1toV2: Added bracket
+global ; V1toV2: Made function global
+	BlockInput("MouseMoveOff")
 	ScrollMode := 1
 	md.SetState(!ScrollMode)
 	; if (!Scrolled&&CanRelase) {
 	if (!Scrolled) {
-		Send {%ShiftKey%}
+		Send("{" ShiftKey "}")
 	}
 	Scrolled := 0
 	return
 
 ; Gets called when mouse moves or stops
 ; x and y are DELTA moves (Amount moved since last message), NOT coordinates.
+} ; V1toV2: Added bracket before function
 MouseEvent(MouseID, x := 0, y := 0) {
 	global ScaleFactor, Scrolled
 	if (MouseID) {
 		; x *= ScaleFactor, y *= ScaleFactor
 		; DllCall("mouse_event",uint,1,int, x * -1 ,int, y * -1 ,ui nt,0,int,0)
 		Scrolled := 1
-		DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * ScaleFactor * -1, int, 0)
-		DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * ScaleFactor, int, 0)
+		DllCall("mouse_event", "uint", 0x01000, "int", x, "int", y, "uint", x * ScaleFactor * -1, "int", 0)
+		DllCall("mouse_event", "uint", 0x800, "int", x, "int", y, "uint", y * ScaleFactor, "int", 0)
 	}
 }
 
 ; HotKeys to change ScaleFactor
 CapsLock & -::
+{
+	global
 	ScaleFactor -= 1
 	if (ScaleFactor <= 0) {
 		ScaleFactor := 1
 	}
 	ShowScrollSpeed()
-	return
+}
 
 CapsLock & +::
+{
+	global
 	ScaleFactor += 1
 	ShowScrollSpeed()
-	return
+}
 
 ShowScrollSpeed() {
 	global ScaleFactor
-	ToolTip, Scroll Speed: %ScaleFactor%
-	SetTimer, RemoveToolTip, Off
-	SetTimer, RemoveToolTip, 500
+	ToolTip("Scroll Speed: " ScaleFactor)
+	SetTimer(RemoveToolTip,0)
+	SetTimer(RemoveToolTip,500)
 }
 
-RemoveToolTip:
-	SetTimer, RemoveToolTip, Off
-	ToolTip
+RemoveToolTip()
+{ ; V1toV2: Added bracket
+global ; V1toV2: Made function global
+	SetTimer(RemoveToolTip,0)
+	ToolTip()
 	return
+} ; V1toV2: Added bracket in the end

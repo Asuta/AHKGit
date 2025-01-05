@@ -1,4 +1,3 @@
-
 ; Instantiate this class and pass it a func name or a Function Object
 ; The specified function will be called with the delta move for the X and Y axes
 ; Normally, there is no windows message "mouse stopped", so one is simulated.
@@ -15,17 +14,20 @@ Class MouseDelta {
 	Start(){
 		static DevSize := 8 + A_PtrSize, RIDEV_INPUTSINK := 0x00000100
 		; Register mouse for WM_INPUT messages.
-		VarSetCapacity(RAWINPUTDEVICE, DevSize)
-		NumPut(1, RAWINPUTDEVICE, 0, "UShort")
-		NumPut(2, RAWINPUTDEVICE, 2, "UShort")
-		NumPut(RIDEV_INPUTSINK, RAWINPUTDEVICE, 4, "Uint")
+		RAWINPUTDEVICE := Buffer(DevSize)
+		NumPut("UShort", 1, RAWINPUTDEVICE, 0)
+		NumPut("UShort", 2, RAWINPUTDEVICE, 2)
+		NumPut("Uint", RIDEV_INPUTSINK, RAWINPUTDEVICE, 4)
 		; WM_INPUT needs a hwnd to route to, so get the hwnd of the AHK Gui.
 		; It doesn't matter if the GUI is showing, it still exists
-		Gui +hwndhwnd
-		NumPut(hwnd, RAWINPUTDEVICE, 8, "Uint")
+		myGui := Gui()
+		hwnd := myGui.Hwnd
+		NumPut("Uint", hwnd, RAWINPUTDEVICE, 8)
 
 		this.RAWINPUTDEVICE := RAWINPUTDEVICE
-		DllCall("RegisterRawInputDevices", "Ptr", &RAWINPUTDEVICE, "UInt", 1, "UInt", DevSize )
+		result := DllCall("RegisterRawInputDevices", "Ptr", RAWINPUTDEVICE.Ptr, "UInt", 1, "UInt", DevSize)
+		if (result = -1)
+			return 0
 		OnMessage(0x00FF, this.MouseMovedFn)
 		this.State := 1
 		return this	; allow chaining
@@ -36,8 +38,10 @@ Class MouseDelta {
 		static DevSize := 8 + A_PtrSize
 		OnMessage(0x00FF, this.MouseMovedFn, 0)
 		RAWINPUTDEVICE := this.RAWINPUTDEVICE
-		NumPut(RIDEV_REMOVE, RAWINPUTDEVICE, 4, "Uint")
-		DllCall("RegisterRawInputDevices", "Ptr", &RAWINPUTDEVICE, "UInt", 1, "UInt", DevSize )
+		NumPut("Uint", RIDEV_REMOVE, RAWINPUTDEVICE, 4)
+		result := DllCall("RegisterRawInputDevices", "Ptr", RAWINPUTDEVICE.Ptr, "UInt", 1, "UInt", DevSize)
+		if (result = -1)
+			return 0
 		this.State := 0
 		return this	; allow chaining
 	}
@@ -59,36 +63,37 @@ Class MouseDelta {
 	; Called when the mouse moved.
 	; Messages tend to contain small (+/- 1) movements, and happen frequently (~20ms)
 	MouseMoved(wParam, lParam){
-		Critical
+		Critical()
 		; RawInput statics
 		static DeviceSize := 2 * A_PtrSize, iSize := 0, sz := 0, pcbSize:=8+2*A_PtrSize, offsets := {x: (20+A_PtrSize*2), y: (24+A_PtrSize*2)}, uRawInput
 
 		static axes := {x: 1, y: 2}
 
 		; Get hDevice from RAWINPUTHEADER to identify which mouse this data came from
-		VarSetCapacity(header, pcbSize, 0)
-		If (!DllCall("GetRawInputData", "UPtr", lParam, "uint", 0x10000005, "UPtr", &header, "Uint*", pcbSize, "Uint", pcbSize) or ErrorLevel)
+		header := Buffer(pcbSize, 0)
+		result := DllCall("GetRawInputData", "UPtr", lParam, "uint", 0x10000005, "UPtr", header.Ptr, "Uint*", &pcbSize, "Uint", pcbSize)
+		If (result = -1)
 			Return 0
 		ThisMouse := NumGet(header, 8, "UPtr")
 
 		; Find size of rawinput data - only needs to be run the first time.
 		if (!iSize){
-			r := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", 0, "UInt*", iSize, "UInt", 8 + (A_PtrSize * 2))
-			VarSetCapacity(uRawInput, iSize)
+			result := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + (A_PtrSize * 2))
+			if (result = -1)
+				return 0
+			uRawInput := Buffer(iSize)
 		}
 		sz := iSize	; param gets overwritten with # of bytes output, so preserve iSize
 		; Get RawInput data
-		r := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", &uRawInput, "UInt*", sz, "UInt", 8 + (A_PtrSize * 2))
+		result := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", uRawInput.Ptr, "UInt*", &sz, "UInt", 8 + (A_PtrSize * 2))
+		if (result = -1)
+			return 0
 
 		x := 0, y := 0	; Ensure we always report a number for an axis. Needed?
-		x := NumGet(&uRawInput, offsets.x, "Int")
-		y := NumGet(&uRawInput, offsets.y, "Int")
+		x := NumGet(uRawInput, offsets.x, "Int")
+		y := NumGet(uRawInput, offsets.y, "Int")
 
-		this.Callback.(ThisMouse, x, y)
-
-		;~ ; There is no message for "Stopped", so simulate one
-		;~ fn := this.TimeoutFn
-		;~ SetTimer, % fn, -50
+		this.Callback(ThisMouse, x, y)
 	}
 
 	;~ TimeoutFunc(){
