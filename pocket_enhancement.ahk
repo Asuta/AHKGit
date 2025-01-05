@@ -42,22 +42,22 @@ DragSpeed  := 1 ; 按键移动画布的速度
 
 !j::
 {
-    Send("{Left}")
+    Send("{Blind}{Left}")
 }
 
 !l::
 {
-    Send("{Right}")
+    Send("{Blind}{Right}")
 }
 
-~!i::
+!i::
 {
-    Send("{Up}")
+    Send("{Blind}{Up}")
 }
 
-~!k::
+!k::
 {
-    Send("{Down}")
+    Send("{Blind}{Down}")
 }
 
 ~!`;::Delete
@@ -371,17 +371,32 @@ CapsLock::Return
 ;=============================移动鼠标============================
 ~CapsLock & u::
 {
-    Click
+    if GetKeyState("u", "P") {
+        Click("Down")
+        KeyWait("u")
+        Click("Up")
+    } else
+        Click
 }
 
 ~CapsLock & f::
 {
-    Click
+    if GetKeyState("f", "P") {
+        Click("Down")
+        KeyWait("f")
+        Click("Up")
+    } else
+        Click
 }
 
 ~CapsLock & o::
 {
-    Click("Right")
+    if GetKeyState("o", "P") {
+        Click("Right Down")
+        KeyWait("o")
+        Click("Right Up")
+    } else
+        Click("Right")
 }
 
 i::
