@@ -7,6 +7,7 @@ InstallKeybdHook()
 A_MaxHotkeysPerInterval := 10000
 SetWorkingDir(A_ScriptDir)
 CoordMode("Mouse", "Window")
+SetKeyDelay(0)  ; 设置按键延迟为0
 
 ; 定义全局变量
 global S := 0
@@ -40,30 +41,20 @@ DragSpeed  := 1 ; 按键移动画布的速度
     Scrolled := 1
 }
 
-!j::
-{
-    Send("{Blind}{Left}")
-}
+; Alt + JKLI navigation
+$!j::Send("{Blind}{Left}")
+$+!j::Send("{Blind}{Left}")  ; 显式定义Shift+Alt组合
 
-!l::
-{
-    Send("{Blind}{Right}")
-}
+$!l::Send("{Blind}{Right}")
+$+!l::Send("{Blind}{Right}")  ; 显式定义Shift+Alt组合
 
-!i::
-{
-    Send("{Blind}{Up}")
-}
+$!i::Send("{Blind}{Up}")
+$+!i::Send("{Blind}{Up}")  ; 显式定义Shift+Alt组合
 
-!k::
-{
-    Send("{Blind}{Down}")
-}
+$!k::Send("{Blind}{Down}")
+$+!k::Send("{Blind}{Down}")  ; 显式定义Shift+Alt组合
 
-!`;::
-{
-    Send("{Blind}{Delete}")
-}
+$!`;::Send("{Blind}{Delete}")
 
 ; 不知道为什么这个只会在alt+tab之后才能用
 
