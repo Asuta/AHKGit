@@ -133,7 +133,9 @@ Text: " text "
 
 RCtrl::
 {
-    Send("{LWin}")
+    Send("{LWin Down}")
+    KeyWait("RCtrl")
+    Send("{LWin Up}")
 }
 
 ~Space & LCtrl::
