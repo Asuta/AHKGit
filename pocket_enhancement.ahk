@@ -43,7 +43,6 @@ return
 ~!`;::Delete
 ; 不知道为什么这个只会在alt+tab之后才能用
 
-
 ; ~Esc & F1::Suspend
 ; ~Esc & F2::Reload
 ; 按下Esc+F3，触发leftctrl、leftshift、leftalt、leftwin四个键
@@ -69,8 +68,6 @@ return
         DragSpeed := 1
 return
 
-
-
 ;按下Esc+F5，出现当前focus的窗口的名称（text）的tooltip，再按一次消失
 ; ~Esc & F5::
 ;     MouseGetPos, , , hwnd
@@ -81,30 +78,23 @@ return
 ;     ToolTip
 ; return
 
+~Esc & F6::
+    WinGetTitle, currentTitle, A ; 获取当前窗口标题
+    WinGetClass, currentClass, A ; 获取当前窗口类名
+    ControlGetFocus, focusedControl, A ; 获取当前焦点控件
+    ControlGet, hwnd, Hwnd,, %focusedControl%, A ; 获取控件的HWND
+    ControlGetText, text, % "ahk_id " hwnd ; 使用HWND获取文本
 
-~Esc & F6:: 
-WinGetTitle, currentTitle, A ; 获取当前窗口标题
-WinGetClass, currentClass, A ; 获取当前窗口类名
-ControlGetFocus, focusedControl, A ; 获取当前焦点控件
-ControlGet, hwnd, Hwnd,, %focusedControl%, A ; 获取控件的HWND
-ControlGetText, text, % "ahk_id " hwnd ; 使用HWND获取文本
-
-; 显示收集到的信息
-ToolTip, 
+    ; 显示收集到的信息
+    ToolTip,
 (
 Title: %currentTitle%
 Class: %currentClass%
 Control: %focusedControl%
 Text: %text%
 )
-Sleep, 2000
-ToolTip
-
-
-
-
-    
-
+    Sleep, 2000
+    ToolTip
 
 RCtrl::LWin
 
@@ -168,19 +158,14 @@ return
 
 ~lbutton & Space::LWin
 
-
-
-
 ~LButton & RButton::
 ~RButton & LButton::
-Send, {Alt Down}{q}{Alt Up}
+    Send, {Alt Down}{q}{Alt Up}
 return
 
 ~LButton::
 ~RButton::
 return
-
-
 
 ;=============================移动光标（和一点其他的）============================
 
@@ -191,16 +176,38 @@ return
 
 ~Space & i::
     if (GetKeyState("LShift", "P"))
-        {
-            Send +{Up}
+    {
+        Send +{Up}
+        if WinActive("ahk_exe ONENOTE.EXE")
             ControlSend, OneNote::DocumentCanvas1, +{Up}, ahk_exe ONENOTE.EXE
-        }
+    }
+    else if (GetKeyState("lbutton", "P"))
+        Send #i
     else
-        {
-            Send {Up}
+    {
+        Send {Up}
+        if WinActive("ahk_exe ONENOTE.EXE")
             ControlSend, OneNote::DocumentCanvas1, {Up}, ahk_exe ONENOTE.EXE
-        }
+    }
 
+    Scrolled := 1
+return
+
+~Space & k::
+    if (GetKeyState("LShift", "P"))
+    {
+        Send +{Down}
+        if WinActive("ahk_exe ONENOTE.EXE")
+            ControlSend, OneNote::DocumentCanvas1, +{Down}, ahk_exe ONENOTE.EXE
+    }
+    else if (GetKeyState("lbutton", "P"))
+        Send #k
+    else
+    {
+        Send {Down}
+        if WinActive("ahk_exe ONENOTE.EXE")
+            ControlSend, OneNote::DocumentCanvas1, {Down}, ahk_exe ONENOTE.EXE
+    }
     Scrolled := 1
 return
 
@@ -248,24 +255,6 @@ return
     }
     else
         Send {Right}
-    Scrolled := 1
-return
-
-~Space & k::
-    if (GetKeyState("LShift", "P"))
-    {
-        Send +{Down}
-        if WinActive("ahk_exe ONENOTE.EXE")
-            ControlSend, OneNote::DocumentCanvas1, +{Down}, ahk_exe ONENOTE.EXE
-    }
-    else if (GetKeyState("lbutton", "P"))
-        Send #k
-    else
-    {
-        Send {Down}
-        if WinActive("ahk_exe ONENOTE.EXE")
-            ControlSend, OneNote::DocumentCanvas1, {Down}, ahk_exe ONENOTE.EXE
-    }
     Scrolled := 1
 return
 
