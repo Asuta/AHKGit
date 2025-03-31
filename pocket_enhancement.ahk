@@ -253,17 +253,19 @@ return
 
 ~Space & k::
     if (GetKeyState("LShift", "P"))
-        {
-            Send +{Down}
+    {
+        Send +{Down}
+        if WinActive("ahk_exe ONENOTE.EXE")
             ControlSend, OneNote::DocumentCanvas1, +{Down}, ahk_exe ONENOTE.EXE
-        }
+    }
     else if (GetKeyState("lbutton", "P"))
         Send #k
     else
-        {
-            Send {Down}
+    {
+        Send {Down}
+        if WinActive("ahk_exe ONENOTE.EXE")
             ControlSend, OneNote::DocumentCanvas1, {Down}, ahk_exe ONENOTE.EXE
-        }
+    }
     Scrolled := 1
 return
 
@@ -500,14 +502,14 @@ IsWhatApp()
     title := SubStr(title,InStr(title,"-")+1)
     ;输出title
     ; MsgBox %title%
-    ; 如果title中包含“OneNote”，则执行后面的语句
+    ; 如果title中包含"OneNote"，则执行后面的语句
     if (InStr(title,"OneNote") > 0)
     {
         Return 50
     }
     else
     {
-        ;输出“no”
+        ;输出"no"
         Return 150
     }
 }
@@ -609,14 +611,14 @@ InWhatApp()
     title := SubStr(title,InStr(title,"-")+1)
     ;输出title
     ; MsgBox %title%
-    ; 如果title中包含“OneNote”，则执行后面的语句
+    ; 如果title中包含"OneNote"，则执行后面的语句
     if (InStr(title,"OneNote") > 0)
     {
         Return 1000
     }
     else
     {
-        ;输出“no”
+        ;输出"no"
         Return 1200
     }
 }
