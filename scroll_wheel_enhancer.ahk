@@ -26,13 +26,15 @@ ShiftKeyPressed(ThisHotkey) {
 ; 释放ShiftKey（默认为Space）时触发
 ShiftKeyReleased(ThisHotkey) {
     global Scrolled, ScrollMode
+    Critical("On")
     BlockInput("MouseMoveOff")
     ScrollMode := 1
     md.SetState(!ScrollMode)
     if (!Scrolled) {
-        Send("{" ShiftKey "}")
+        SendInput("{" ShiftKey "}")
     }
     Scrolled := 0
+    Critical("Off")
     return
 }
 

@@ -9,6 +9,9 @@ SetWorkingDir(A_ScriptDir)
 CoordMode("Mouse", "Window")
 SetKeyDelay(0)  ; 设置按键延迟为0
 
+; 为特定组合键定义更精确的设置
+SetKeyDelay(10, 10, "Play")  ; 为 Send 函数设置较小的延迟，提高按键稳定性
+
 ; 引入配置和模块
 #Include "config.ahk"
 #Include "scroll_wheel_enhancer.ahk"
@@ -177,99 +180,165 @@ RCtrl::
 }
 
 ; ===== 使用Space+方向键的导航热键 =====
+; 添加键盘模拟函数
+KeyboardEvent(key, updown) {
+    Static keybd_event := DllCall("GetProcAddress", "Ptr", DllCall("GetModuleHandle", "Str", "user32", "Ptr"), "AStr", "keybd_event", "Ptr")
+    
+    ; 转换键名为虚拟键代码（VK）
+    static VK_UP := 0x26
+    static VK_DOWN := 0x28
+    static VK_LEFT := 0x25
+    static VK_RIGHT := 0x27
+    static VK_SHIFT := 0x10
+    
+    vk := 0
+    if (key = "Up")
+        vk := VK_UP
+    else if (key = "Down")
+        vk := VK_DOWN
+    else if (key = "Left")
+        vk := VK_LEFT
+    else if (key = "Right")
+        vk := VK_RIGHT
+    else if (key = "Shift")
+        vk := VK_SHIFT
+    
+    ; 发送键盘事件
+    ; keybd_event 参数: vk, scan, flags, extraInfo
+    ; flags: 0 = 按下, 2 = 释放
+    flags := (updown = "down") ? 0 : 2
+    DllCall(keybd_event, "UChar", vk, "UChar", 0, "UInt", flags, "UPtr", 0)
+}
+
 ~Space & i::
 {
     global Scrolled
-    if (GetKeyState("LShift", "P"))
+    Critical("On")
+    
+    ; 检查是否在 OneNote 中
+    if WinActive("ahk_exe ONENOTE.EXE")
     {
-        Send("+{Up}")
-        try {
-            if WinExist("ahk_exe ONENOTE.EXE")
-                ControlSend("+{Up}", , "ahk_exe ONENOTE.EXE")
+        ; OneNote 专用处理 - 使用 DllCall 直接模拟键盘事件
+        if (GetKeyState("LShift", "P"))
+        {
+            ; 确保Shift键已经按下(系统应该已经知道了，因为是GetKeyState检测的)
+            KeyboardEvent("Up", "down")
+            Sleep(10)
+            KeyboardEvent("Up", "up")
+        }
+        else
+        {
+            KeyboardEvent("Up", "down")
+            Sleep(10)
+            KeyboardEvent("Up", "up")
         }
     }
     else
     {
-        Send("{Up}")
-        try {
-            if WinExist("ahk_exe ONENOTE.EXE")
-                ControlSend("{Up}", , "ahk_exe ONENOTE.EXE")
-        }
+        ; 其他应用普通处理
+        if (GetKeyState("LShift", "P"))
+            SendInput("+{Up}")
+        else
+            SendInput("{Up}")
     }
+    
+    Critical("Off")
     Scrolled := 1
 }
 
 ~Space & j::
 {
     global Scrolled
+    Critical("On")  ; 确保这段代码不被中断执行
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
         {
-            Send("{Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}")
-            Send("{F up}")
+            SendInput("{Ctrl down}{Shift down}{Left}{Ctrl up}{Shift up}")
+            SendInput("{F up}")
         }
         else
         {
-            Send("+{Left}")
+            SendInput("+{Left}")
         }
     }
     else if (GetKeyState("F", "P"))
     {
-        Send("{Ctrl down}{Left}{Ctrl up}")
-        Send("{F up}")
+        SendInput("{Ctrl down}{Left}{Ctrl up}")
+        SendInput("{F up}")
     }
     else
     {
-        Send("{Left}")
+        SendInput("{Left}")
     }
+    Critical("Off")
     Scrolled := 1
 }
 
 ~Space & l::
 {
     global Scrolled
+    Critical("On")  ; 确保这段代码不被中断执行
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
-            Send("{Ctrl down}{Shift down}{Right}{Ctrl up}{Shift up}")
+            SendInput("{Ctrl down}{Shift down}{Right}{Ctrl up}{Shift up}")
         else
         {
-            Send("+{Right}")
+            SendInput("+{Right}")
         }
     }
     Else if (GetKeyState("F", "P"))
     {
-        Send("{Ctrl down}")
-        Send("{Right}")
-        Send("{Ctrl up}")
+        SendInput("{Ctrl down}")
+        SendInput("{Right}")
+        SendInput("{Ctrl up}")
     }
     else
-        Send("{Right}")
+        SendInput("{Right}")
+    Critical("Off")
     Scrolled := 1
 }
 
 ~Space & k::
 {
     global Scrolled
-    if (GetKeyState("LShift", "P"))
+    Critical("On")
+    
+    ; 检查是否在 OneNote 中
+    if WinActive("ahk_exe ONENOTE.EXE")
     {
-        Send("+{Down}")
-        try {
-            if WinExist("ahk_exe ONENOTE.EXE")
-                ControlSend("+{Down}", , "ahk_exe ONENOTE.EXE")
+        ; OneNote 专用处理 - 使用 DllCall 直接模拟键盘事件
+        if (GetKeyState("LShift", "P"))
+        {
+            ; 确保Shift键已经按下(系统应该已经知道了，因为是GetKeyState检测的)
+            KeyboardEvent("Down", "down")
+            Sleep(10)
+            KeyboardEvent("Down", "up")
+        }
+        else if (GetKeyState("lbutton", "P"))
+        {
+            SendInput("#k")
+        }
+        else
+        {
+            KeyboardEvent("Down", "down")
+            Sleep(10)
+            KeyboardEvent("Down", "up")
         }
     }
-    else if (GetKeyState("lbutton", "P"))
-        Send("#k")
     else
     {
-        Send("{Down}")
-        try {
-            if WinExist("ahk_exe ONENOTE.EXE")
-                ControlSend("{Down}", , "ahk_exe ONENOTE.EXE")
-        }
+        ; 其他应用普通处理
+        if (GetKeyState("LShift", "P"))
+            SendInput("+{Down}")
+        else if (GetKeyState("lbutton", "P"))
+            SendInput("#k")
+        else
+            SendInput("{Down}")
     }
+    
+    Critical("Off")
     Scrolled := 1
 }
 
