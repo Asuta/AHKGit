@@ -25,7 +25,7 @@ ShiftKeyPressed(ThisHotkey) {
 
 ; 释放ShiftKey（默认为Space）时触发
 ShiftKeyReleased(ThisHotkey) {
-    global
+    global Scrolled, ScrollMode
     BlockInput("MouseMoveOff")
     ScrollMode := 1
     md.SetState(!ScrollMode)

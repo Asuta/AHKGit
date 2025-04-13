@@ -47,6 +47,7 @@ $!`;::Send("{Blind}{Delete}")
 
 ~Esc & F4::
 {
+    global MouseAcceleration
     if (MouseAcceleration == 1)
         MouseAcceleration := 1000
     else
@@ -55,6 +56,7 @@ $!`;::Send("{Blind}{Delete}")
 
 ~Esc & F5::
 {
+    global DragSpeed
     if (DragSpeed == 1)
         DragSpeed := 2
     else
@@ -90,18 +92,21 @@ RCtrl::
 
 ~Space & LCtrl::
 {
+    global Scrolled
     Send("{RWin}")
     Scrolled := 1
 }
 
 ~Space & LButton::
 {
+    global Scrolled
     Send("!{Left}")
     Scrolled := 1
 }
 
 ~Space & RButton::
 {
+    global Scrolled
     Send("!{Right}")
     Scrolled := 1
 }
@@ -115,6 +120,7 @@ RCtrl::
 
 ~Space & h::
 {
+    global Scrolled
     Send("^z")
     Sleep(30)
     Send("{Esc}")
@@ -123,17 +129,20 @@ RCtrl::
 
 ~Space & q::
 {
+    global Scrolled
     Send("{Esc}")
     Scrolled := 1
 }
 
 ~Space & n::
 {
+    global Scrolled
     Scrolled := 1
 }
 
 ~Space & '::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
         Send("+{Backspace}")
     Scrolled := 1
@@ -141,6 +150,7 @@ RCtrl::
 
 ~Space & `;::
 {
+    global Scrolled
     Send("{Backspace}")
     if (GetKeyState("LShift", "P"))
         Send("+{Backspace}")
@@ -162,12 +172,14 @@ RCtrl::
 
 ~Space & f::
 {
+    global Scrolled
     Scrolled := 1
 }
 
 ; ===== 使用Space+方向键的导航热键 =====
 ~Space & i::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
     {
         Send("+{Up}")
@@ -189,6 +201,7 @@ RCtrl::
 
 ~Space & j::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
@@ -215,6 +228,7 @@ RCtrl::
 
 ~Space & l::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
     {
         if (GetKeyState("F", "P"))
@@ -237,6 +251,7 @@ RCtrl::
 
 ~Space & k::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
     {
         Send("+{Down}")
@@ -260,6 +275,7 @@ RCtrl::
 
 ~Space & u::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
         Send("+{Home}")
     else
@@ -269,6 +285,7 @@ RCtrl::
 
 ~Space & p::
 {
+    global Scrolled
     if (GetKeyState("LShift", "P"))
         Send("+{End}")
     else if (GetKeyState("lbutton", "P"))

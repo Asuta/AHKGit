@@ -9,6 +9,7 @@ global isCtrlDown := false  ; 控制Ctrl键状态
 
 CapsLock & q::
 {
+    global isCtrlDown  ; 添加全局变量声明
     if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
         Loop {
@@ -35,6 +36,7 @@ CapsLock & q::
 
 CapsLock & e::
 {
+    global isCtrlDown  ; 添加全局变量声明
     if GetKeyState("CapsLock", "P") {
         zoomSpeed := IsWhatApp()
         Loop {
