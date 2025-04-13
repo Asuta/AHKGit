@@ -17,6 +17,7 @@ RestartProgram() {
     EndProgram()
     Sleep(100) ; 等待1秒以确保程序完全关闭
     StartProgram()
+    SetCapsLockState("Off") ; 关闭大写锁定
 }
 
 ; 热键定义
