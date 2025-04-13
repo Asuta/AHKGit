@@ -7,6 +7,7 @@ global MouseSpeed := 30	    ; 鼠标移动速度
 global MouseSleep := 10	    ; 鼠标移动的延迟时间
 global MouseStartSpeed := 0.5	; 鼠标初始速度
 global MouseAcceleration := 1	; 鼠标加速度
+global MouseAccelerationFactor := 0.5	; 鼠标加速度因子
 global DragSpeed := 1       ; 按键移动画布的速度
 
 ; 全局状态变量（在多个模块之间共享）

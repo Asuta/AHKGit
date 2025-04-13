@@ -42,24 +42,47 @@ global Y := 0  ; Y轴移动值
 ; ===== 鼠标移动热键 =====
 ; CapsLock + i/j/k/l 用于鼠标移动操作
 
+; 使用DllCall直接移动鼠标，比MouseMove更高效
+DirectMouseMove(dx, dy) {
+    static MOUSEEVENTF_MOVE := 0x0001
+    DllCall("mouse_event", "UInt", MOUSEEVENTF_MOVE, "Int", dx, "Int", dy, "UInt", 0, "UPtr", 0)
+}
+
 i::
 {
     if GetKeyState("CAPSLOCK", "P") {
+        Critical("On")  ; 确保不被中断执行
         S := MouseStartSpeed  ; 重置S为初始速度
         X := 0
         Y := 0
+        
+        ; 降低循环内操作复杂度，简化速度计算
+        speedMultiplier := 1.0
+        
         Loop {
             if not GetKeyState("i", "P")
                 break
-            S+=MouseAcceleration
-            Y:=-S
+                
+            ; 优化速度计算
+            currSpeed := S + (MouseAcceleration * speedMultiplier)
+            speedMultiplier += MouseAccelerationFactor  ; 平滑的加速
+            
+            Y := -currSpeed
             if GetKeyState("j", "P")
-                X:=-S
-            if GetKeyState("l", "P")
-                X:=S
-            MouseMove(X, Y, 0, "R")
-            Sleep(MouseSleep)
+                X := -currSpeed
+            else if GetKeyState("l", "P")
+                X := currSpeed
+            else
+                X := 0
+                
+            ; 使用直接DllCall移动鼠标
+            DirectMouseMove(X, Y)
+            
+            ; 动态调整休眠时间，速度快时减少休眠
+            sleepTime := Max(1, MouseSleep - (speedMultiplier / 10))
+            Sleep(sleepTime)
         }
+        Critical("Off")
     }
     else
         Send("{i}")
@@ -68,21 +91,38 @@ i::
 j::
 {
     if GetKeyState("CAPSLOCK", "P") {
+        Critical("On")  ; 确保不被中断执行
         S := MouseStartSpeed  ; 重置S为初始速度
         X := 0
         Y := 0
+        
+        ; 降低循环内操作复杂度，简化速度计算
+        speedMultiplier := 1.0
+        
         Loop {
             if not GetKeyState("j", "P")
                 break
-            S+=MouseAcceleration
-            X:=-S
+                
+            ; 优化速度计算
+            currSpeed := S + (MouseAcceleration * speedMultiplier)
+            speedMultiplier += MouseAccelerationFactor  ; 平滑的加速
+            
+            X := -currSpeed
             if GetKeyState("i", "P")
-                Y:=-S
-            if GetKeyState("k", "P")
-                Y:=S
-            MouseMove(X, Y, 0, "R")
-            Sleep(MouseSleep)
+                Y := -currSpeed
+            else if GetKeyState("k", "P")
+                Y := currSpeed
+            else
+                Y := 0
+                
+            ; 使用直接DllCall移动鼠标
+            DirectMouseMove(X, Y)
+            
+            ; 动态调整休眠时间，速度快时减少休眠
+            sleepTime := Max(1, MouseSleep - (speedMultiplier / 10))
+            Sleep(sleepTime)
         }
+        Critical("Off")
     }
     else
         Send("{j}")
@@ -91,21 +131,38 @@ j::
 k::
 {
     if GetKeyState("CAPSLOCK", "P") {
+        Critical("On")  ; 确保不被中断执行
         S := MouseStartSpeed  ; 重置S为初始速度
         X := 0
         Y := 0
+        
+        ; 降低循环内操作复杂度，简化速度计算
+        speedMultiplier := 1.0
+        
         Loop {
             if not GetKeyState("k", "P")
                 break
-            S+=MouseAcceleration
-            Y:=S
+                
+            ; 优化速度计算
+            currSpeed := S + (MouseAcceleration * speedMultiplier)
+            speedMultiplier += MouseAccelerationFactor  ; 平滑的加速
+            
+            Y := currSpeed
             if GetKeyState("j", "P")
-                X:=-S
-            if GetKeyState("l", "P")
-                X:=S
-            MouseMove(X, Y, 0, "R")
-            Sleep(MouseSleep)
+                X := -currSpeed
+            else if GetKeyState("l", "P")
+                X := currSpeed
+            else
+                X := 0
+                
+            ; 使用直接DllCall移动鼠标
+            DirectMouseMove(X, Y)
+            
+            ; 动态调整休眠时间，速度快时减少休眠
+            sleepTime := Max(1, MouseSleep - (speedMultiplier / 10))
+            Sleep(sleepTime)
         }
+        Critical("Off")
     }
     else
         Send("{k}")
@@ -114,21 +171,38 @@ k::
 l::
 {
     if GetKeyState("CAPSLOCK", "P") {
+        Critical("On")  ; 确保不被中断执行
         S := MouseStartSpeed  ; 重置S为初始速度
         X := 0
         Y := 0
+        
+        ; 降低循环内操作复杂度，简化速度计算
+        speedMultiplier := 1.0
+        
         Loop {
             if not GetKeyState("l", "P")
                 break
-            S+=MouseAcceleration
-            X:=S
+                
+            ; 优化速度计算
+            currSpeed := S + (MouseAcceleration * speedMultiplier)
+            speedMultiplier += MouseAccelerationFactor  ; 平滑的加速
+            
+            X := currSpeed
             if GetKeyState("i", "P")
-                Y:=-S
-            if GetKeyState("k", "P")
-                Y:=S
-            MouseMove(X, Y, 0, "R")
-            Sleep(MouseSleep)
+                Y := -currSpeed
+            else if GetKeyState("k", "P")
+                Y := currSpeed
+            else
+                Y := 0
+                
+            ; 使用直接DllCall移动鼠标
+            DirectMouseMove(X, Y)
+            
+            ; 动态调整休眠时间，速度快时减少休眠
+            sleepTime := Max(1, MouseSleep - (speedMultiplier / 10))
+            Sleep(sleepTime)
         }
+        Critical("Off")
     }
     else
         Send("{l}")
