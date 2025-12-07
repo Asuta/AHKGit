@@ -19,10 +19,16 @@ RestartProgram() {
     StartProgram()
 }
 
+; 完全重启（重启自身和外部程序）
+FullRestart() {
+    EndProgram()
+    Reload()
+}
+
 ; 热键定义
 ; ^!s::StartProgram()   ; Ctrl + Alt + S 启动程序
 ~Esc & F1::EndProgram()     ; Ctrl + Alt + E 结束程序
-~Esc & F2::RestartProgram() ; Ctrl + Alt + R 重启程序
+~Esc & F2::FullRestart() ; Ctrl + Alt + R 重启程序
 
 ; 提示信息
 ; MsgBox("脚本已启动。使用 Ctrl+Alt+S 启动，Ctrl+Alt+E 结束，Ctrl+Alt+R 重启程序。")
