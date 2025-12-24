@@ -22,6 +22,7 @@ RestartProgram() {
 ; 完全重启（重启自身和外部程序）
 FullRestart() {
     EndProgram()
+    SetCapsLockState("Off")
     Reload()
 }
 
