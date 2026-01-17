@@ -8,8 +8,7 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 CoordMode, Mouse, Window ; 去掉了也没啥影响。。。。(头像测试)
-SetBatchLines, -1 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
-S:=2
+SetBatchLines,% -1, S:=2 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
 
 ; ============= START USER-CONFIGURABLE SECTION =============
 ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
@@ -19,6 +18,8 @@ MouseSpeed := 30	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
 MouseStartSpeed := 0.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1	; The amount to multiply movement when scrolling
+MouseMoveSpeedScale := 0.7
+MouseMoveAccelScale := 1
 DragSpeed  := 1 ; 按键移动画布的速度
 
 ; ============= END USER-CONFIGURABLE SECTION =============
@@ -309,27 +310,35 @@ return
 i::
     if GetKeyState("CAPSLOCK", "P"){
         SetBatchLines, -1
-        S:=MouseStartSpeed
-        X:=0
-        Y:=0
+        S := MouseStartSpeed
+        X := 0
+        Y := 0
+        lastTick := A_TickCount
         Loop
         {
             if not GetKeyState("i", "P")
             {
                 break
             }
-            S+=MouseAcceleration
-            Y:=-S
+            nowTick := A_TickCount
+            dt := nowTick - lastTick
+            lastTick := nowTick
+            if (dt < 1)
+                dt := 1
+            ratio := dt / MouseSleep
+
+            S += MouseAcceleration * ratio * MouseMoveAccelScale
+            Y := -S * ratio * MouseMoveSpeedScale
             if GetKeyState("j", "P")
             {
                 ; S+=MouseAcceleration
-                X:=-S
+                X := -S * ratio * MouseMoveSpeedScale
             }
 
             if GetKeyState("l", "P")
             {
                 ; S+=MouseAcceleration
-                X:=S
+                X := S * ratio * MouseMoveSpeedScale
             }
             Mousemove,X, Y, 0, R
             sleep MouseSleep ;
@@ -343,27 +352,35 @@ Return
 j::
     if GetKeyState("CAPSLOCK", "P"){
         SetBatchLines, -1
-        S:=MouseStartSpeed
-        X:=0
-        Y:=0
+        S := MouseStartSpeed
+        X := 0
+        Y := 0
+        lastTick := A_TickCount
         Loop
         {
             if not GetKeyState("j", "P")
             {
                 break
             }
-            S+=MouseAcceleration
-            X:=-S
+            nowTick := A_TickCount
+            dt := nowTick - lastTick
+            lastTick := nowTick
+            if (dt < 1)
+                dt := 1
+            ratio := dt / MouseSleep
+
+            S += MouseAcceleration * ratio * MouseMoveAccelScale
+            X := -S * ratio * MouseMoveSpeedScale
             if GetKeyState("i", "P")
             {
                 ; S+=MouseAcceleration
-                Y:=-S
+                Y := -S * ratio * MouseMoveSpeedScale
             }
 
             if GetKeyState("k", "P")
             {
                 ; S+=MouseAcceleration
-                Y:=S
+                Y := S * ratio * MouseMoveSpeedScale
             }
             Mousemove,X, Y, 0, R
             sleep MouseSleep ;
@@ -377,27 +394,35 @@ Return
 k::
     if GetKeyState("CAPSLOCK", "P"){
         SetBatchLines, -1
-        S:=MouseStartSpeed
-        X:=0
-        Y:=0
+        S := MouseStartSpeed
+        X := 0
+        Y := 0
+        lastTick := A_TickCount
         Loop
         {
             if not GetKeyState("k", "P")
             {
                 break
             }
-            S+=MouseAcceleration
-            Y:=S
+            nowTick := A_TickCount
+            dt := nowTick - lastTick
+            lastTick := nowTick
+            if (dt < 1)
+                dt := 1
+            ratio := dt / MouseSleep
+
+            S += MouseAcceleration * ratio * MouseMoveAccelScale
+            Y := S * ratio * MouseMoveSpeedScale
             if GetKeyState("j", "P")
             {
                 ; S+=MouseAcceleration
-                X:=-S
+                X := -S * ratio * MouseMoveSpeedScale
             }
 
             if GetKeyState("l", "P")
             {
                 ; S+=MouseAcceleration
-                X:=S
+                X := S * ratio * MouseMoveSpeedScale
             }
             Mousemove,X, Y, 0, R
             sleep MouseSleep ;
@@ -411,27 +436,35 @@ Return
 l::
     if GetKeyState("CAPSLOCK", "P"){
         SetBatchLines, -1
-        S:=MouseStartSpeed
-        X:=0
-        Y:=0
+        S := MouseStartSpeed
+        X := 0
+        Y := 0
+        lastTick := A_TickCount
         Loop
         {
             if not GetKeyState("l", "P")
             {
                 break
             }
-            S+=MouseAcceleration
-            X:=S
+            nowTick := A_TickCount
+            dt := nowTick - lastTick
+            lastTick := nowTick
+            if (dt < 1)
+                dt := 1
+            ratio := dt / MouseSleep
+
+            S += MouseAcceleration * ratio * MouseMoveAccelScale
+            X := S * ratio * MouseMoveSpeedScale
             if GetKeyState("i", "P")
             {
                 ; S+=MouseAcceleration
-                Y:=-S
+                Y := -S * ratio * MouseMoveSpeedScale
             }
 
             if GetKeyState("k", "P")
             {
                 ; S+=MouseAcceleration
-                Y:=S
+                Y := S * ratio * MouseMoveSpeedScale
             }
             Mousemove,X, Y, 0, R
             sleep MouseSleep ;
