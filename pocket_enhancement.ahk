@@ -389,6 +389,7 @@ MouseMoveMotorTick:
     down := GetKeyState("k", "P")
     right := GetKeyState("l", "P")
     currentMask := (up ? 1 : 0) | (left ? 2 : 0) | (down ? 4 : 0) | (right ? 8 : 0)
+    prevMask := MouseMovePrevMask
 
     nowTick := A_TickCount
     dt := nowTick - MouseMoveLastTick
@@ -417,6 +418,11 @@ MouseMoveMotorTick:
                 MouseMoveMaskChangeTick := 0
             }
         } else {
+            prevCount := (prevMask & 1 ? 1 : 0) + (prevMask & 2 ? 1 : 0) + (prevMask & 4 ? 1 : 0) + (prevMask & 8 ? 1 : 0)
+            currentCount := (currentMask & 1 ? 1 : 0) + (currentMask & 2 ? 1 : 0) + (currentMask & 4 ? 1 : 0) + (currentMask & 8 ? 1 : 0)
+            if (prevCount == 1 && currentCount >= 2) {
+                MouseMoveSpeed := 0
+            }
             MouseMovePrevMask := currentMask
             MouseMoveMaskChangeTick := 0
         }
