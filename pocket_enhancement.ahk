@@ -9,6 +9,15 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 CoordMode, Mouse, Window ; 去掉了也没啥影响。。。。(头像测试)
 SetBatchLines,% -1, S:=2 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
+Process, Priority,, AboveNormal
+DllCall("winmm\timeBeginPeriod", "UInt", 1)
+OnExit, PocketEnhancementCleanup
+
+MouseMoveMotorRunning := 0
+MouseMoveLastTick := 0
+MouseMoveSpeed := 0
+MouseMovePrevMask := 0
+MouseMoveMaskChangeTick := 0
 
 ; ============= START USER-CONFIGURABLE SECTION =============
 ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
@@ -20,6 +29,7 @@ MouseStartSpeed := 0.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1	; The amount to multiply movement when scrolling
 MouseMoveSpeedScale := 0.7
 MouseMoveAccelScale := 1
+MouseMoveReleaseGraceMs := 25
 DragSpeed  := 1 ; 按键移动画布的速度
 
 ; ============= END USER-CONFIGURABLE SECTION =============
@@ -309,171 +319,139 @@ return
 
 i::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        lastTick := A_TickCount
-        Loop
-        {
-            if not GetKeyState("i", "P")
-            {
-                break
-            }
-            nowTick := A_TickCount
-            dt := nowTick - lastTick
-            lastTick := nowTick
-            if (dt < 1)
-                dt := 1
-            ratio := dt / MouseSleep
-
-            S += MouseAcceleration * ratio * MouseMoveAccelScale
-            Y := -S * ratio * MouseMoveSpeedScale
-            if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
-                X := -S * ratio * MouseMoveSpeedScale
-            }
-
-            if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
-                X := S * ratio * MouseMoveSpeedScale
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
-        }
+        StartMouseMoveMotor()
+        return
     }
-    else {
-        Send {i} ;
-    }
+    Send {i}
 Return
 
 j::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        lastTick := A_TickCount
-        Loop
-        {
-            if not GetKeyState("j", "P")
-            {
-                break
-            }
-            nowTick := A_TickCount
-            dt := nowTick - lastTick
-            lastTick := nowTick
-            if (dt < 1)
-                dt := 1
-            ratio := dt / MouseSleep
-
-            S += MouseAcceleration * ratio * MouseMoveAccelScale
-            X := -S * ratio * MouseMoveSpeedScale
-            if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
-                Y := -S * ratio * MouseMoveSpeedScale
-            }
-
-            if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
-                Y := S * ratio * MouseMoveSpeedScale
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
-        }
+        StartMouseMoveMotor()
+        return
     }
-    else {
-        Send {j} ;
-    }
+    Send {j}
 Return
 
 k::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        lastTick := A_TickCount
-        Loop
-        {
-            if not GetKeyState("k", "P")
-            {
-                break
-            }
-            nowTick := A_TickCount
-            dt := nowTick - lastTick
-            lastTick := nowTick
-            if (dt < 1)
-                dt := 1
-            ratio := dt / MouseSleep
-
-            S += MouseAcceleration * ratio * MouseMoveAccelScale
-            Y := S * ratio * MouseMoveSpeedScale
-            if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
-                X := -S * ratio * MouseMoveSpeedScale
-            }
-
-            if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
-                X := S * ratio * MouseMoveSpeedScale
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
-        }
+        StartMouseMoveMotor()
+        return
     }
-    else {
-        Send {k} ;
-    }
+    Send {k}
 Return
 
 l::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        lastTick := A_TickCount
-        Loop
-        {
-            if not GetKeyState("l", "P")
-            {
-                break
-            }
-            nowTick := A_TickCount
-            dt := nowTick - lastTick
-            lastTick := nowTick
-            if (dt < 1)
-                dt := 1
-            ratio := dt / MouseSleep
-
-            S += MouseAcceleration * ratio * MouseMoveAccelScale
-            X := S * ratio * MouseMoveSpeedScale
-            if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
-                Y := -S * ratio * MouseMoveSpeedScale
-            }
-
-            if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
-                Y := S * ratio * MouseMoveSpeedScale
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
-        }
+        StartMouseMoveMotor()
+        return
     }
-    else {
-        Send {l} ;
-    }
+    Send {l}
 Return
+
+StartMouseMoveMotor() {
+    global MouseMoveMotorRunning, MouseMoveLastTick, MouseMoveSpeed, MouseMovePrevMask, MouseMoveMaskChangeTick
+    global MouseStartSpeed, MouseSleep
+    if (MouseMoveMotorRunning)
+        return
+    MouseMoveMotorRunning := 1
+    MouseMoveLastTick := A_TickCount
+    MouseMoveSpeed := MouseStartSpeed
+    MouseMovePrevMask := 0
+    MouseMoveMaskChangeTick := 0
+    period := MouseSleep
+    if (period < 1)
+        period := 1
+    SetTimer, MouseMoveMotorTick, %period%
+    Gosub, MouseMoveMotorTick
+}
+
+StopMouseMoveMotor() {
+    global MouseMoveMotorRunning, MouseMoveSpeed, MouseStartSpeed, MouseMovePrevMask, MouseMoveMaskChangeTick
+    if (!MouseMoveMotorRunning)
+        return
+    SetTimer, MouseMoveMotorTick, Off
+    MouseMoveMotorRunning := 0
+    MouseMoveSpeed := MouseStartSpeed
+    MouseMovePrevMask := 0
+    MouseMoveMaskChangeTick := 0
+}
+
+MouseMoveMotorTick:
+    Critical
+    if (!GetKeyState("CAPSLOCK", "P")) {
+        StopMouseMoveMotor()
+        return
+    }
+
+    up := GetKeyState("i", "P")
+    left := GetKeyState("j", "P")
+    down := GetKeyState("k", "P")
+    right := GetKeyState("l", "P")
+    currentMask := (up ? 1 : 0) | (left ? 2 : 0) | (down ? 4 : 0) | (right ? 8 : 0)
+
+    nowTick := A_TickCount
+    dt := nowTick - MouseMoveLastTick
+    MouseMoveLastTick := nowTick
+    if (dt < 1)
+        dt := 1
+
+    if (!currentMask) {
+        StopMouseMoveMotor()
+        return
+    }
+
+    if (!MouseMovePrevMask) {
+        MouseMovePrevMask := currentMask
+    }
+
+    effectiveMask := currentMask
+    if (currentMask != MouseMovePrevMask) {
+        if ((currentMask & MouseMovePrevMask) == currentMask) {
+            if (!MouseMoveMaskChangeTick)
+                MouseMoveMaskChangeTick := nowTick
+            if ((nowTick - MouseMoveMaskChangeTick) < MouseMoveReleaseGraceMs) {
+                effectiveMask := 0
+            } else {
+                MouseMovePrevMask := currentMask
+                MouseMoveMaskChangeTick := 0
+            }
+        } else {
+            MouseMovePrevMask := currentMask
+            MouseMoveMaskChangeTick := 0
+        }
+    } else {
+        MouseMoveMaskChangeTick := 0
+    }
+
+    if (!effectiveMask)
+        return
+
+    tickMs := MouseSleep
+    if (tickMs < 1)
+        tickMs := 1
+    steps := Ceil(dt / tickMs)
+    if (steps < 1)
+        steps := 1
+    if (steps > 5)
+        steps := 5
+    stepDt := dt / steps
+
+    xSign := ((effectiveMask & 8) ? 1 : 0) - ((effectiveMask & 2) ? 1 : 0)
+    ySign := ((effectiveMask & 4) ? 1 : 0) - ((effectiveMask & 1) ? 1 : 0)
+    norm := Sqrt(xSign * xSign + ySign * ySign)
+    if (!norm)
+        return
+    Loop, %steps% {
+        ratio := stepDt / tickMs
+        MouseMoveSpeed += MouseAcceleration * ratio * MouseMoveAccelScale
+        moveStep := MouseMoveSpeed * ratio * MouseMoveSpeedScale
+        x := xSign * moveStep / norm
+        y := ySign * moveStep / norm
+        if (x || y)
+            MouseMove, %x%, %y%, 0, R
+    }
+return
 
 ;=============================移动画布(页面)============================
 
@@ -688,3 +666,7 @@ Existclass(class)
     Else
         Return,0
 }
+
+PocketEnhancementCleanup:
+    DllCall("winmm\timeEndPeriod", "UInt", 1)
+return
