@@ -8,7 +8,8 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 CoordMode, Mouse, Window ; 去掉了也没啥影响。。。。(头像测试)
-SetBatchLines,% -1, S:=2 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
+SetBatchLines, -1 ; 设置批量操作的行数，-1表示不限制。（去掉这个，鼠标移动速度就会不稳定）
+S:=2
 
 ; ============= START USER-CONFIGURABLE SECTION =============
 ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
@@ -307,7 +308,10 @@ return
 
 i::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
+        SetBatchLines, -1
+        S:=MouseStartSpeed
+        X:=0
+        Y:=0
         Loop
         {
             if not GetKeyState("i", "P")
@@ -338,7 +342,10 @@ Return
 
 j::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
+        SetBatchLines, -1
+        S:=MouseStartSpeed
+        X:=0
+        Y:=0
         Loop
         {
             if not GetKeyState("j", "P")
@@ -369,7 +376,10 @@ Return
 
 k::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
+        SetBatchLines, -1
+        S:=MouseStartSpeed
+        X:=0
+        Y:=0
         Loop
         {
             if not GetKeyState("k", "P")
@@ -400,7 +410,10 @@ Return
 
 l::
     if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines,% -1, S:=MouseStartSpeed, X:=0 , Y:=0
+        SetBatchLines, -1
+        S:=MouseStartSpeed
+        X:=0
+        Y:=0
         Loop
         {
             if not GetKeyState("l", "P")
