@@ -19,6 +19,8 @@ MouseSpeed := 30 	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
 MouseStartSpeed := 1.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1.5	; The amount to multiply movement when scrolling
+NormalMouseAcceleration := MouseAcceleration
+FastMouseAcceleration := 1000
 DragSpeed  := 1 ; 按键移动画布的速度
 isCtrlDown := false ; 确保缩放热键释放Ctrl
 
@@ -57,10 +59,10 @@ return
 return
 ; 按下Esc+F4，让MouseAcceleration = 1000，再按一次恢复
 ~Esc & F4::
-    if (MouseAcceleration == 1)
-        MouseAcceleration := 1000
+    if (MouseAcceleration == FastMouseAcceleration)
+        MouseAcceleration := NormalMouseAcceleration
     else
-        MouseAcceleration := 1
+        MouseAcceleration := FastMouseAcceleration
 return
 
 ~Esc & F5::

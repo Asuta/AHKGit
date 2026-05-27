@@ -3,7 +3,7 @@
 #include MouseDelta.ahk
 
 ScrollMode := 1
-Scrolled := 1
+Scrolled := 0
 CanRelase := 0
 md := new MouseDelta("MouseEvent") 
 

@@ -22,7 +22,7 @@ Class MouseDelta {
 		; WM_INPUT needs a hwnd to route to, so get the hwnd of the AHK Gui.
 		; It doesn't matter if the GUI is showing, it still exists
 		Gui +hwndhwnd
-		NumPut(hwnd, RAWINPUTDEVICE, 8, "Uint")
+		NumPut(hwnd, RAWINPUTDEVICE, 8, "Ptr")
 
 		this.RAWINPUTDEVICE := RAWINPUTDEVICE
 		DllCall("RegisterRawInputDevices", "Ptr", &RAWINPUTDEVICE, "UInt", 1, "UInt", DevSize )
@@ -37,6 +37,7 @@ Class MouseDelta {
 		OnMessage(0x00FF, this.MouseMovedFn, 0)
 		RAWINPUTDEVICE := this.RAWINPUTDEVICE
 		NumPut(RIDEV_REMOVE, RAWINPUTDEVICE, 4, "Uint")
+		NumPut(0, RAWINPUTDEVICE, 8, "Ptr")
 		DllCall("RegisterRawInputDevices", "Ptr", &RAWINPUTDEVICE, "UInt", 1, "UInt", DevSize )
 		this.State := 0
 		return this	; allow chaining
@@ -73,12 +74,12 @@ Class MouseDelta {
 
 		; Find size of rawinput data - only needs to be run the first time.
 		if (!iSize){
-			r := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", 0, "UInt*", iSize, "UInt", 8 + (A_PtrSize * 2))
+			r := DllCall("GetRawInputData", "UPtr", lParam, "UInt", 0x10000003, "Ptr", 0, "UInt*", iSize, "UInt", 8 + (A_PtrSize * 2))
 			VarSetCapacity(uRawInput, iSize)
 		}
 		sz := iSize	; param gets overwritten with # of bytes output, so preserve iSize
 		; Get RawInput data
-		r := DllCall("GetRawInputData", "UInt", lParam, "UInt", 0x10000003, "Ptr", &uRawInput, "UInt*", sz, "UInt", 8 + (A_PtrSize * 2))
+		r := DllCall("GetRawInputData", "UPtr", lParam, "UInt", 0x10000003, "Ptr", &uRawInput, "UInt*", sz, "UInt", 8 + (A_PtrSize * 2))
 
 		x := 0, y := 0	; Ensure we always report a number for an axis. Needed?
 		x := NumGet(&uRawInput, offsets.x, "Int")
