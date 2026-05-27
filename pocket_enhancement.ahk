@@ -15,10 +15,10 @@ S := 2
 ShiftKey := "Space"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
 AltKey := "Alt"	; The key used to switch to scrollwheel. Can be any key name from the AHK Key list: https://autohotkey.com/docs/KeyList.htm
 ScaleFactor := 3	; The amount to multiply movement when scrolling
-MouseSpeed := 30	; The amount to multiply movement when scrolling
+MouseSpeed := 30 	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
-MouseStartSpeed := 0.5	; The amount to multiply movement when scrolling
-MouseAcceleration := 1	; The amount to multiply movement when scrolling
+MouseStartSpeed := 1.5	; The amount to multiply movement when scrolling
+MouseAcceleration := 1.5	; The amount to multiply movement when scrolling
 DragSpeed  := 1 ; 按键移动画布的速度
 isCtrlDown := false ; 确保缩放热键释放Ctrl
 
