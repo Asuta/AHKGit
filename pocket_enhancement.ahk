@@ -311,141 +311,125 @@ return
 ~CapsLock & o::rbutton
 return
 
-i::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        Loop
-        {
-            if not GetKeyState("i", "P")
-            {
-                break
-            }
-            S+=MouseAcceleration
-            Y:=-S
-            if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
-                X:=-S
-            }
+#If GetKeyState("CapsLock", "P")
 
-            if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
-                X:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+i::
+    SetBatchLines, -1
+    S := MouseStartSpeed
+    X := 0
+    Y := 0
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("i", "P"))
+        {
+            break
         }
-    }
-    else {
-        Send {i} ;
+        S+=MouseAcceleration
+        Y:=-S
+        if GetKeyState("j", "P")
+        {
+            ; S+=MouseAcceleration
+            X:=-S
+        }
+
+        if GetKeyState("l", "P")
+        {
+            ; S+=MouseAcceleration
+            X:=S
+        }
+        Mousemove,X, Y, 0, R
+        sleep MouseSleep ;
     }
 Return
 
 j::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        Loop
+    SetBatchLines, -1
+    S := MouseStartSpeed
+    X := 0
+    Y := 0
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("j", "P"))
         {
-            if not GetKeyState("j", "P")
-            {
-                break
-            }
-            S+=MouseAcceleration
-            X:=-S
-            if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
-                Y:=-S
-            }
-
-            if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
-                Y:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            break
         }
-    }
-    else {
-        Send {j} ;
+        S+=MouseAcceleration
+        X:=-S
+        if GetKeyState("i", "P")
+        {
+            ; S+=MouseAcceleration
+            Y:=-S
+        }
+
+        if GetKeyState("k", "P")
+        {
+            ; S+=MouseAcceleration
+            Y:=S
+        }
+        Mousemove,X, Y, 0, R
+        sleep MouseSleep ;
     }
 Return
 
 k::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        Loop
+    SetBatchLines, -1
+    S := MouseStartSpeed
+    X := 0
+    Y := 0
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("k", "P"))
         {
-            if not GetKeyState("k", "P")
-            {
-                break
-            }
-            S+=MouseAcceleration
-            Y:=S
-            if GetKeyState("j", "P")
-            {
-                ; S+=MouseAcceleration
-                X:=-S
-            }
-
-            if GetKeyState("l", "P")
-            {
-                ; S+=MouseAcceleration
-                X:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            break
         }
-    }
-    else {
-        Send {k} ;
+        S+=MouseAcceleration
+        Y:=S
+        if GetKeyState("j", "P")
+        {
+            ; S+=MouseAcceleration
+            X:=-S
+        }
+
+        if GetKeyState("l", "P")
+        {
+            ; S+=MouseAcceleration
+            X:=S
+        }
+        Mousemove,X, Y, 0, R
+        sleep MouseSleep ;
     }
 Return
 
 l::
-    if GetKeyState("CAPSLOCK", "P"){
-        SetBatchLines, -1
-        S := MouseStartSpeed
-        X := 0
-        Y := 0
-        Loop
+    SetBatchLines, -1
+    S := MouseStartSpeed
+    X := 0
+    Y := 0
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("l", "P"))
         {
-            if not GetKeyState("l", "P")
-            {
-                break
-            }
-            S+=MouseAcceleration
-            X:=S
-            if GetKeyState("i", "P")
-            {
-                ; S+=MouseAcceleration
-                Y:=-S
-            }
-
-            if GetKeyState("k", "P")
-            {
-                ; S+=MouseAcceleration
-                Y:=S
-            }
-            Mousemove,X, Y, 0, R
-            sleep MouseSleep ;
+            break
         }
-    }
-    else {
-        Send {l} ;
+        S+=MouseAcceleration
+        X:=S
+        if GetKeyState("i", "P")
+        {
+            ; S+=MouseAcceleration
+            Y:=-S
+        }
+
+        if GetKeyState("k", "P")
+        {
+            ; S+=MouseAcceleration
+            Y:=S
+        }
+        Mousemove,X, Y, 0, R
+        sleep MouseSleep ;
     }
 Return
+
+#If
 
 ;=============================移动画布(页面)============================
 
@@ -523,94 +507,78 @@ IsWhatApp()
     }
 }
 
+#If GetKeyState("CapsLock", "P")
+
 w::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("w", "P") ;
-                break
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-            if GetKeyState("a", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-            if GetKeyState("d", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-            sleep 100 ;
-        }
-    }
-    else {
-        Send {w} ;
+    ;MouseGetPos, x, y
+    x :=InWhatApp()*DragSpeed
+    y :=InWhatApp()
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("w", "P"))
+            break
+        DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
+        if GetKeyState("a", "P")
+            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+        if GetKeyState("d", "P")
+            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
+        sleep 100 ;
     }
 Return
 
 a::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("a", "P") ;
-                break
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-            if GetKeyState("w", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-            if GetKeyState("s", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-            sleep 100 ;
-        }
-    }
-    else {
-        Send {a} ;
+    ;MouseGetPos, x, y
+    x :=InWhatApp()*DragSpeed
+    y :=InWhatApp()
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("a", "P"))
+            break
+        DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+        if GetKeyState("w", "P")
+            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
+        if GetKeyState("s", "P")
+            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
+        sleep 100 ;
     }
 Return
 
 s::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
-        Loop
-        {
-            if not GetKeyState("s", "P") ;
-                break
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-            if GetKeyState("a", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-            if GetKeyState("d", "P")
-                DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-            sleep 100 ;
-        }
-    }
-    else {
-        Send {s} ;
+    ;MouseGetPos, x, y
+    x :=InWhatApp()*DragSpeed
+    y :=InWhatApp()
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("s", "P"))
+            break
+        DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
+        if GetKeyState("a", "P")
+            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
+        if GetKeyState("d", "P")
+            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
+        sleep 100 ;
     }
 Return
 
 d::
-    if GetKeyState("CAPSLOCK", "P"){
-        ;MouseGetPos, x, y
-        x :=InWhatApp()*DragSpeed
-        y :=InWhatApp()
+    ;MouseGetPos, x, y
+    x :=InWhatApp()*DragSpeed
+    y :=InWhatApp()
 
-        Loop
-        {
-            if not GetKeyState("d", "P") ;
-                break
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-            if GetKeyState("s", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-            if GetKeyState("w", "P")
-                DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-            sleep 100 ;
-        }
-    }
-    else {
-        Send {d} ;
+    Loop
+    {
+        if (!GetKeyState("CapsLock", "P") || !GetKeyState("d", "P"))
+            break
+        DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
+        if GetKeyState("s", "P")
+            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
+        if GetKeyState("w", "P")
+            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
+        sleep 100 ;
     }
 Return
+
+#If
 
 InWhatApp()
 {
