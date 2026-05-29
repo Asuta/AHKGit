@@ -23,6 +23,11 @@ NormalMouseAcceleration := MouseAcceleration
 FastMouseAcceleration := 1000
 DragSpeed  := 1 ; 按键移动画布的速度
 isCtrlDown := false ; 确保缩放热键释放Ctrl
+CanvasMoveInterval := 100
+CanvasMoveW := false
+CanvasMoveA := false
+CanvasMoveS := false
+CanvasMoveD := false
 
 ; ============= END USER-CONFIGURABLE SECTION =============
 
@@ -507,78 +512,100 @@ IsWhatApp()
     }
 }
 
-#If GetKeyState("CapsLock", "P")
-
-w::
-    ;MouseGetPos, x, y
-    x :=InWhatApp()*DragSpeed
-    y :=InWhatApp()
-    Loop
+CapsLock & w::
+    if (!CanvasMoveW)
     {
-        if (!GetKeyState("CapsLock", "P") || !GetKeyState("w", "P"))
-            break
+        CanvasMoveW := true
+        Gosub, StartCanvasMoveTimer
+    }
+return
+
+CapsLock & w up::
+    CanvasMoveW := false
+    Gosub, StopCanvasMoveTimerIfIdle
+return
+
+CapsLock & a::
+    if (!CanvasMoveA)
+    {
+        CanvasMoveA := true
+        Gosub, StartCanvasMoveTimer
+    }
+return
+
+CapsLock & a up::
+    CanvasMoveA := false
+    Gosub, StopCanvasMoveTimerIfIdle
+return
+
+CapsLock & s::
+    if (!CanvasMoveS)
+    {
+        CanvasMoveS := true
+        Gosub, StartCanvasMoveTimer
+    }
+return
+
+CapsLock & s up::
+    CanvasMoveS := false
+    Gosub, StopCanvasMoveTimerIfIdle
+return
+
+CapsLock & d::
+    if (!CanvasMoveD)
+    {
+        CanvasMoveD := true
+        Gosub, StartCanvasMoveTimer
+    }
+return
+
+CapsLock & d up::
+    CanvasMoveD := false
+    Gosub, StopCanvasMoveTimerIfIdle
+return
+
+StartCanvasMoveTimer:
+    SetTimer, MoveCanvasWithKeys, %CanvasMoveInterval%
+    Gosub, MoveCanvasWithKeys
+return
+
+StopCanvasMoveTimerIfIdle:
+    if (!CanvasMoveW && !CanvasMoveA && !CanvasMoveS && !CanvasMoveD)
+        SetTimer, MoveCanvasWithKeys, Off
+return
+
+MoveCanvasWithKeys:
+    if (!GetKeyState("CapsLock", "P"))
+    {
+        SetTimer, MoveCanvasWithKeys, Off
+        CanvasMoveW := false
+        CanvasMoveA := false
+        CanvasMoveS := false
+        CanvasMoveD := false
+        return
+    }
+
+    CanvasMoveW := CanvasMoveW && GetKeyState("w", "P")
+    CanvasMoveA := CanvasMoveA && GetKeyState("a", "P")
+    CanvasMoveS := CanvasMoveS && GetKeyState("s", "P")
+    CanvasMoveD := CanvasMoveD && GetKeyState("d", "P")
+    if (!CanvasMoveW && !CanvasMoveA && !CanvasMoveS && !CanvasMoveD)
+    {
+        SetTimer, MoveCanvasWithKeys, Off
+        return
+    }
+
+    x := InWhatApp()*DragSpeed
+    y := InWhatApp()
+    if (CanvasMoveW)
         DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-        if GetKeyState("a", "P")
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-        if GetKeyState("d", "P")
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-        sleep 100 ;
-    }
-Return
-
-a::
-    ;MouseGetPos, x, y
-    x :=InWhatApp()*DragSpeed
-    y :=InWhatApp()
-    Loop
-    {
-        if (!GetKeyState("CapsLock", "P") || !GetKeyState("a", "P"))
-            break
+    if (CanvasMoveA)
         DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-        if GetKeyState("w", "P")
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-        if GetKeyState("s", "P")
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-        sleep 100 ;
-    }
-Return
-
-s::
-    ;MouseGetPos, x, y
-    x :=InWhatApp()*DragSpeed
-    y :=InWhatApp()
-    Loop
-    {
-        if (!GetKeyState("CapsLock", "P") || !GetKeyState("s", "P"))
-            break
+    if (CanvasMoveS)
         DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-        if GetKeyState("a", "P")
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * -0.1, int, 0)
-        if GetKeyState("d", "P")
-            DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-        sleep 100 ;
-    }
-Return
-
-d::
-    ;MouseGetPos, x, y
-    x :=InWhatApp()*DragSpeed
-    y :=InWhatApp()
-
-    Loop
-    {
-        if (!GetKeyState("CapsLock", "P") || !GetKeyState("d", "P"))
-            break
-        DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x *0.1, int, 0)
-        if GetKeyState("s", "P")
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * -0.1, int, 0)
-        if GetKeyState("w", "P")
-            DllCall("mouse_event", uint, 0x800, int, x, int, y, uint, y * 0.1, int, 0)
-        sleep 100 ;
-    }
-Return
-
-#If
+    if (CanvasMoveD)
+        DllCall("mouse_event", uint, 0x01000, int, x, int, y, uint, x * 0.1, int, 0)
+return
 
 InWhatApp()
 {
