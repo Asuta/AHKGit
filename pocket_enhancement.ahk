@@ -19,6 +19,8 @@ MouseSpeed := 30 	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
 MouseStartSpeed := 1.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1.5	; The amount to multiply movement when scrolling
+MouseAccelerationStep := 0.1
+MinMouseAcceleration := 0.5
 NormalMouseAcceleration := MouseAcceleration
 FastMouseAcceleration := 1000
 DragSpeed  := 1 ; 按键移动画布的速度
@@ -434,7 +436,44 @@ l::
     }
 Return
 
+[::
+    AdjustMouseMoveSpeed(-MouseAccelerationStep)
+Return
+
+]::
+    AdjustMouseMoveSpeed(MouseAccelerationStep)
+Return
+
 #If
+
+AdjustMouseMoveSpeed(delta)
+{
+    global MouseAcceleration, NormalMouseAcceleration, FastMouseAcceleration, MinMouseAcceleration
+
+    if (MouseAcceleration == FastMouseAcceleration)
+        MouseAcceleration := NormalMouseAcceleration
+
+    MouseAcceleration += delta
+    if (MouseAcceleration < MinMouseAcceleration)
+        MouseAcceleration := MinMouseAcceleration
+
+    NormalMouseAcceleration := MouseAcceleration
+    ShowMouseMoveSpeed()
+}
+
+ShowMouseMoveSpeed()
+{
+    global MouseAcceleration
+    speed := Round(MouseAcceleration, 2)
+    ToolTip, Mouse Move Speed: %speed%
+    SetTimer, RemoveMouseMoveSpeedToolTip, Off
+    SetTimer, RemoveMouseMoveSpeedToolTip, 500
+}
+
+RemoveMouseMoveSpeedToolTip:
+    SetTimer, RemoveMouseMoveSpeedToolTip, Off
+    ToolTip
+return
 
 ;=============================移动画布(页面)============================
 
