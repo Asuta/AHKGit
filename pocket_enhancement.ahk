@@ -17,10 +17,13 @@ AltKey := "Alt"	; The key used to switch to scrollwheel. Can be any key name fro
 ScaleFactor := 3	; The amount to multiply movement when scrolling
 MouseSpeed := 30 	; The amount to multiply movement when scrolling
 MouseSleep := 10	; The amount to multiply movement when scrolling
+MaxMouseMoveElapsed := 50
 MouseStartSpeed := 1.5	; The amount to multiply movement when scrolling
 MouseAcceleration := 1.5	; The amount to multiply movement when scrolling
 MouseAccelerationStep := 0.1
 MinMouseAcceleration := 0.5
+SettingsFile := A_ScriptDir "\settings.ini"
+LoadMouseMoveSpeed()
 NormalMouseAcceleration := MouseAcceleration
 FastMouseAcceleration := 1000
 DragSpeed  := 1 ; 按键移动画布的速度
@@ -325,24 +328,26 @@ i::
     S := MouseStartSpeed
     X := 0
     Y := 0
+    lastTick := A_TickCount
     Loop
     {
         if (!GetKeyState("CapsLock", "P") || !GetKeyState("i", "P"))
         {
             break
         }
-        S+=MouseAcceleration
-        Y:=-S
+        frameFactor := GetMouseMoveFrameFactor(lastTick)
+        moveStep := GetMouseMoveStep(S, frameFactor)
+        Y:=-moveStep
         if GetKeyState("j", "P")
         {
             ; S+=MouseAcceleration
-            X:=-S
+            X:=-moveStep
         }
 
         if GetKeyState("l", "P")
         {
             ; S+=MouseAcceleration
-            X:=S
+            X:=moveStep
         }
         Mousemove,X, Y, 0, R
         sleep MouseSleep ;
@@ -354,24 +359,26 @@ j::
     S := MouseStartSpeed
     X := 0
     Y := 0
+    lastTick := A_TickCount
     Loop
     {
         if (!GetKeyState("CapsLock", "P") || !GetKeyState("j", "P"))
         {
             break
         }
-        S+=MouseAcceleration
-        X:=-S
+        frameFactor := GetMouseMoveFrameFactor(lastTick)
+        moveStep := GetMouseMoveStep(S, frameFactor)
+        X:=-moveStep
         if GetKeyState("i", "P")
         {
             ; S+=MouseAcceleration
-            Y:=-S
+            Y:=-moveStep
         }
 
         if GetKeyState("k", "P")
         {
             ; S+=MouseAcceleration
-            Y:=S
+            Y:=moveStep
         }
         Mousemove,X, Y, 0, R
         sleep MouseSleep ;
@@ -383,24 +390,26 @@ k::
     S := MouseStartSpeed
     X := 0
     Y := 0
+    lastTick := A_TickCount
     Loop
     {
         if (!GetKeyState("CapsLock", "P") || !GetKeyState("k", "P"))
         {
             break
         }
-        S+=MouseAcceleration
-        Y:=S
+        frameFactor := GetMouseMoveFrameFactor(lastTick)
+        moveStep := GetMouseMoveStep(S, frameFactor)
+        Y:=moveStep
         if GetKeyState("j", "P")
         {
             ; S+=MouseAcceleration
-            X:=-S
+            X:=-moveStep
         }
 
         if GetKeyState("l", "P")
         {
             ; S+=MouseAcceleration
-            X:=S
+            X:=moveStep
         }
         Mousemove,X, Y, 0, R
         sleep MouseSleep ;
@@ -412,24 +421,26 @@ l::
     S := MouseStartSpeed
     X := 0
     Y := 0
+    lastTick := A_TickCount
     Loop
     {
         if (!GetKeyState("CapsLock", "P") || !GetKeyState("l", "P"))
         {
             break
         }
-        S+=MouseAcceleration
-        X:=S
+        frameFactor := GetMouseMoveFrameFactor(lastTick)
+        moveStep := GetMouseMoveStep(S, frameFactor)
+        X:=moveStep
         if GetKeyState("i", "P")
         {
             ; S+=MouseAcceleration
-            Y:=-S
+            Y:=-moveStep
         }
 
         if GetKeyState("k", "P")
         {
             ; S+=MouseAcceleration
-            Y:=S
+            Y:=moveStep
         }
         Mousemove,X, Y, 0, R
         sleep MouseSleep ;
@@ -446,6 +457,33 @@ Return
 
 #If
 
+GetMouseMoveFrameFactor(ByRef lastTick)
+{
+    global MouseSleep, MaxMouseMoveElapsed
+
+    currentTick := A_TickCount
+    elapsed := currentTick - lastTick
+    lastTick := currentTick
+
+    if (MouseSleep <= 0)
+        return 1
+    if (elapsed < MouseSleep)
+        elapsed := MouseSleep
+    if (elapsed > MaxMouseMoveElapsed)
+        elapsed := MaxMouseMoveElapsed
+
+    return elapsed / MouseSleep
+}
+
+GetMouseMoveStep(ByRef speed, frameFactor)
+{
+    global MouseAcceleration
+
+    moveStep := (speed * frameFactor) + (MouseAcceleration * frameFactor * (frameFactor + 1) / 2)
+    speed += MouseAcceleration * frameFactor
+    return moveStep
+}
+
 AdjustMouseMoveSpeed(delta)
 {
     global MouseAcceleration, NormalMouseAcceleration, FastMouseAcceleration, MinMouseAcceleration
@@ -458,7 +496,28 @@ AdjustMouseMoveSpeed(delta)
         MouseAcceleration := MinMouseAcceleration
 
     NormalMouseAcceleration := MouseAcceleration
+    SaveMouseMoveSpeed()
     ShowMouseMoveSpeed()
+}
+
+LoadMouseMoveSpeed()
+{
+    global SettingsFile, MouseAcceleration, MinMouseAcceleration
+
+    IniRead, savedMouseAcceleration, %SettingsFile%, MouseMove, Acceleration, %MouseAcceleration%
+    if savedMouseAcceleration is number
+    {
+        MouseAcceleration := savedMouseAcceleration + 0
+        if (MouseAcceleration < MinMouseAcceleration)
+            MouseAcceleration := MinMouseAcceleration
+    }
+}
+
+SaveMouseMoveSpeed()
+{
+    global SettingsFile, MouseAcceleration
+
+    IniWrite, %MouseAcceleration%, %SettingsFile%, MouseMove, Acceleration
 }
 
 ShowMouseMoveSpeed()
